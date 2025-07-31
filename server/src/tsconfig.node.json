@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ES2020", // or ESNext if you prefer
+        "module": "nodenext", // Node.js uses CommonJS
+        "moduleResolution": "nodenext",
+        "outDir": "./dist", // compiled JS output
+        "rootDir": "./src", // your source files
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "composite": true
+    },
+    "include": ["src/**/*.ts"], // include all TS files in src
+    "exclude": ["node_modules", "dist"]
+}

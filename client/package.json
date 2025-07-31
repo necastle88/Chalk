@@ -1,0 +1,30 @@
+{
+  "name": "chalk-fitness-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@clerk/clerk-react": "^5.38.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@tanstack/react-query": "^5.28.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "recharts": "^2.7.2",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.34.1",
+    "typescript": "^5.4.2",
+    "vite": "^7.0.6"
+  }
+}
