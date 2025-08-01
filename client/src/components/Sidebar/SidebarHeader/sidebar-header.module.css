@@ -1,0 +1,12 @@
+.logoImage {
+    width: 6rem;
+    height: auto;
+}
+
+.sidebarHeader {
+    display: flex;
+    flex-direction: column;
+    margin-block-end: 1rem;
+    color: var(--darkmode-text-color);
+    justify-content: space-between;
+}

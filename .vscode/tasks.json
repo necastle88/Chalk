@@ -1,0 +1,44 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Client Tests",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"test:run"
+			],
+			"group": "test",
+			"isBackground": false,
+			"options": {
+				"cwd": "${workspaceFolder}/client"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Server Tests",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"test"
+			],
+			"group": "test",
+			"isBackground": false,
+			"options": {
+				"cwd": "${workspaceFolder}/server"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Run All Tests",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"Run Client Tests",
+				"Run Server Tests"
+			],
+			"group": "test",
+			"isBackground": false
+		}
+	]
+}

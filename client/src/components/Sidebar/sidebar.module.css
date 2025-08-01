@@ -1,0 +1,20 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    width: 240px;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s;
+}
+
+.closed {
+    width: 60px;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s;
+}
+
+.sidebarFooter {
+    bottom: 0;
+    color: var(--text-color);
+}
