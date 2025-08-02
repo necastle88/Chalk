@@ -1,19 +1,17 @@
 import { useState } from "react";
 import styles from "./Sidebar.module.css";
-import ExpandSidebarButton from "./ExpandSidebarButton/ExpandSidebarButton";
 import SidebarFooter from "./SidebarFooter/SidebarFooter";
-import ChalkDarkModeLogo from "../../assets/ChalkLogoDM.png";
 import SidebarHeader from "./SidebarHeader/SidebarHeader";
 
 const Sidebar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const toggleSidebar = () => {
-    setIsOpen((prev) => !prev);
+    setIsOpen(!isOpen);
   };
 
   // Apply styles conditionally based on isOpen state
-  const sidebarClasses = `${styles.sidebar} ${isOpen && styles.closed}`;
+  const sidebarClasses = `${styles.sidebar} ${!isOpen && styles.closed}`;
 
   const listItems = [
     { name: "Dashboard", link: "/" },

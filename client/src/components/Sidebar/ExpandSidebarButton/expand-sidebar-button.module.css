@@ -4,7 +4,16 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    width: 45px;
+    height: 45px;
+    padding: .2rem;
 }
+
+.chevronContainer .open {
+    transform: rotate(180deg);
+}
+
+
 .biggerChevron {
     display: flex;
     flex-direction: column;
@@ -16,7 +25,7 @@
     height: 4px;
     width: 20px;
     margin: 4px 0;
-    background-color: #ffffff;
+    background-color: var(--secondary-color);
     border-radius: 5px;
     transition: all 0.3s ease;
 }
@@ -25,39 +34,29 @@
     height: 3px;
     width: 12px;
     margin: 4px 0;
-    background-color: #ffffff;
+    background-color: var(--primary-color);
     border-radius: 5px;
     transition: all 0.3s ease;
 }
 
 .smallerChevron .line:nth-child(1) {
-    transform: rotate(45deg);
+    transform: rotate(-45deg);
 }
 
 .smallerChevron .line:nth-child(2) {
-       transform: rotate(-45deg);
+       transform: rotate(45deg);
 }
 
 .biggerChevron .line:nth-child(1) {
-    transform: rotate(45deg);
+    transform: rotate(-45deg);
 }
 
 .biggerChevron .line:nth-child(2) {
-       transform: rotate(-45deg);
+       transform: rotate(45deg);
 }
 
-.biggerChevron.open .line:nth-child(1) {
-    transform: rotate(45deg) translate(10px, 12px);
-}
-
-.biggerChevron.open .line:nth-child(2) {
-    opacity: 0;
-}
-
-.smallerChevron.open .line:nth-child(1) {
-    transform: rotate(45deg) translate(10px, 12px);
-}
-
-.smallerChevron.open .line:nth-child(2) {
-    opacity: 0;
+.chevronContainer:hover {
+    background-color: var(--button-hover-bg-color);
+    transition: background-color 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+    border-radius: 6px;
 }

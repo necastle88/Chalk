@@ -18,26 +18,45 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --primary-color: #646cff;
-  --secondary-color: #535bf2;
-  --background-color: #f9f9f9;
-  --darkmode-bg-color: #1a1a1a;
-  --darkmode-text-color: #ffffff;
-  --lightmode-text-color: #1a1a1a;
-  --sidebar-primary-bg-color: #2a2a2a;
-  --sidebar-secondary-bg-color: #1f1f1f;
-  --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --line-height: 1.5;
-  --font-weight: 400;
-  --color-scheme: light dark;
-  --background-color-dark: #242424;
-  --font-synthesis: none;
-  --text-rendering: optimizeLegibility;
-  --webkit-font-smoothing: antialiased;
-  --moz-osx-font-smoothing: grayscale;  
-  --link-color: #646cff;
-  --link-hover-color: #535bf2;
-  --border-color: #eaeaea;
-  --button-bg-color: #1a1a1a;
-  --button-hover-bg-color: #646cff;
+
+  /* === Core Brand Colors === */
+  --primary-color: #8c52ff;          /* Energetic Purple */
+  --secondary-color: #38f27a;        /* Electric Green */
+
+  /* === Accent & Utility === */
+  --accent-color: #ffcf33;           /* Highlight/CTA color */
+  --danger-color: #ff4d4d;           /* Error/Warning */
+
+  /* === Light Mode === */
+  --background-color: #f5f5f7;
+  --text-color: #1a1a1a;
+  --card-bg-color: #ffffff;
+  --border-color: #e0e0e0;
+
+  /* === Dark Mode === */
+  --darkmode-bg-color: #121212;
+  --darkmode-surface-color: #1e1e1e;
+  --darkmode-text-color: #f1f1f1;
+  --darkmode-border-color: #2c2c2c;
+
+  /* === Sidebar === */
+  --sidebar-primary-bg-color: #2b1a4a;      /* Dark purple for identity */
+  --sidebar-secondary-bg-color: #1f1332;
+  --sidebar-text-color: #f1f1f1;
+  --sidebar-caption-color: #b39ddb;         /* Light purple for captions */
+
+  /* === Typography === */
+  --font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-weight-regular: 400;
+  --font-weight-bold: 600;
+
+  /* === Button Styles === */
+  --btn-bg: var(--primary-color);
+  --btn-text-color: #ffffff;
+  --btn-hover-bg: #742dd8;
+  --btn-secondary-bg: var(--secondary-color);
+  --btn-secondary-hover-bg: #2edb6a;
+  --button-hover-bg-color: #3b3b3b;
+
 }
