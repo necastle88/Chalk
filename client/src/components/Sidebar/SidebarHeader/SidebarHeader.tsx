@@ -22,7 +22,7 @@ const SidebarHeader = ({ isOpen, toggleSidebar }: SidebarHeaderProps) => {
             />
             <ExpandSidebarButton onClick={toggleSidebar} isOpen={isOpen} />
           </div>
-          <p>Your fitness tracking app</p>
+          <p className={styles.sidebarDescription}>Your fitness tracking app</p>
         </>
       ) : (
         <ExpandSidebarButton onClick={toggleSidebar} isOpen={isOpen} />

@@ -1,0 +1,43 @@
+.sidebarLinks {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.sidebarLinks a {
+    background-color: transparent;
+    width: 100%;
+    border: none;
+    color: var(--darkmode-text-color);
+    padding: 12px 16px;
+    text-align: center;
+    justify-content: space-between;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebarLinks.closed a {
+    width: 45px;
+    height: 45px;
+    border: none;
+    padding: 0;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+}
+
+.sidebarLinks a:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+
+
