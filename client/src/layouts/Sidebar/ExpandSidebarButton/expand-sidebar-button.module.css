@@ -13,7 +13,6 @@
     transform: rotate(180deg);
 }
 
-
 .biggerChevron {
     display: flex;
     flex-direction: column;

@@ -1,6 +1,51 @@
 .header {
     background-color: var(--background-color);
     color: var(--text-color);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: transparent;
+    border-radius: 8px;
+    color: var(--darkmode-text-color);
+}
+
+.notificationsDot {
+    position: relative;
+    top: -.8rem;
+    left: .2rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var( --notification-color);
+}
+
+.navList {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    gap: .5rem;
+}
+
+.headerButtons {
+    height: 60px;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
     padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
+    border-radius: 6px;
+
+}
+
+.headerButtons:hover {
+    background-color: var(--button-hover-bg-color);
+    transition: background-color 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+    border-radius: 6px;
 }

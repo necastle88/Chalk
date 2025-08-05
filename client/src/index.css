@@ -26,6 +26,7 @@
   /* === Accent & Utility === */
   --accent-color: #ffcf33;           /* Highlight/CTA color */
   --danger-color: #ff4d4d;           /* Error/Warning */
+  --notification-color: #ff9800; /* Notifications */
 
   /* === Light Mode === */
   --background-color: #f5f5f7;
