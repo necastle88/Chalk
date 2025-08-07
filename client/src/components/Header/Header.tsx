@@ -2,10 +2,11 @@ import { SignedIn, UserButton } from "@clerk/clerk-react";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import SettingsIcon from "@mui/icons-material/Settings";
 import styles from "./header.module.css";
 
 import type { NotificationData } from "./header-types";
+import Popover from "@mui/material/Popover";
+import Typography from "@mui/material/Typography";
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -13,6 +14,19 @@ const Header: React.FC = () => {
   const [notifications, setNotifications] = useState<
     NotificationData[] | undefined
   >([]);
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
 
   // Map paths to readable titles
   const pathToTitle: { [key: string]: string } = {
@@ -51,17 +65,46 @@ const Header: React.FC = () => {
       </div>
       <ul className={styles.navList}>
         <li className={styles.notifications}>
-          <button className={styles.headerButtons}>
+          <button
+            className={styles.headerButtons}
+            onClick={handleClick}
+            aria-describedby={id}
+            type="button"
+          >
             {notifications && notifications.length > 0 ? (
               <div className={styles.notificationsDot}></div>
             ) : null}
             <NotificationsIcon />
           </button>
-        </li>
-        <li className={styles.settings}>
-          <button className={styles.headerButtons}>
-            <SettingsIcon />
-          </button>
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 45,
+              horizontal: -232,
+            }}
+          >
+            {notifications && notifications.length > 0 ? (
+              <div className={styles.notificationPopover}>
+                <div className={styles.notificationHeader}>
+                  <h3>Notifications</h3>
+                  <button className={styles.closeButton} onClick={handleClose}>
+                    &times;
+                  </button>
+                </div>
+                {(notifications ?? []).map((notification) => (
+                  <p
+                    key={notification.id}
+                    className={styles.notificationMessage}
+                  >
+                    {notification.message}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+          </Popover>
         </li>
         <li className={styles.headerButtons}>
           <SignedIn>

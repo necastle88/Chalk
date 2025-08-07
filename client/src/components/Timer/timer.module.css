@@ -1,0 +1,162 @@
+.timerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 2rem 1rem 2rem;
+    background-color: var(--darkmode-surface-color);
+    width: min-content;
+    border-radius: 12px;
+}
+
+.timerControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border-block-end: 2px solid var(--darkmode-border-color);
+    width: 100%;
+}
+
+.timerButtonControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.timerDisplay {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--darkmode-text-color);
+    margin-bottom: 1rem;
+}
+
+.timerCircle {
+    margin-block: 1rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.timerButton {
+    margin-block-start: 1rem;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    background-color: transparent;
+    color: var(--btn-text-color);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.timerButton:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+.timerCircle:hover {
+    transform: scale(1.05);
+}
+
+.selectContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.timerSelect {
+    padding: 0.75rem 1rem;
+    border-radius: .5rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--darkmode-border-color);
+    color: var(--darkmode-text-color);
+    outline: none;
+    transition: all 0.2s ease;
+    width: 100%;
+    cursor: pointer;
+    appearance: none;
+    width: min-content;
+}
+
+.timerSelect:focus {
+    border-color: var(--secondary-color);
+}
+
+.timerSelect option {
+    color: var(--darkmode-text-color);
+}
+
+.timerSelect optgroup {
+    font-weight: bold;
+    color: var(--secondary-color-dark);
+    padding-top: 0.5rem;
+}
+
+.warningMessage {
+    color: var(--accent-color);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: start;
+    gap: 6px;
+    background: var(--darkmode-border-color);
+    padding: .6rem;
+    border-radius: 6px;
+    margin-block-end: 1.2rem;
+}
+
+.warningMessage button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--accent-color);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.lapTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.lapTable th,
+.lapTable td {
+    padding: 0.5rem 1rem;
+    border-block-end: 1px solid var(--border-color);
+}
+
+.lapTable th {
+    background-color: var(--darkmode-border-color);
+    color: var(--darkmode-text-color);
+}
+
+.placeholderMessage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    background-color: var(--darkmode-bg-color);
+    font-size: 1rem;
+    text-align: center;
+    margin-block: 1rem;
+    padding: 2rem;
+}
+
+.placeholderMessage p {
+    margin: 0;
+    opacity: 0.7;
+    color: var(--darkmode-text-color);
+    font-weight: 700;
+    font-size: .875rem;
+}

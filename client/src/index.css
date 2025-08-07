@@ -22,6 +22,9 @@
   /* === Core Brand Colors === */
   --primary-color: #8c52ff;          /* Energetic Purple */
   --secondary-color: #38f27a;        /* Electric Green */
+  --secondary-color-light: #2edb6a; /* Lighter Green for hover effects */
+  --secondary-color-dark: #0ec34d; /* Darker Green for active states */
+  --tertiary-color: #ff6f61;         /* Coral for accents */
 
   /* === Accent & Utility === */
   --accent-color: #ffcf33;           /* Highlight/CTA color */
