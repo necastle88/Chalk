@@ -2,13 +2,17 @@ import { SignedIn, UserButton } from "@clerk/clerk-react";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import MenuIcon from "@mui/icons-material/Menu";
 import styles from "./header.module.css";
 
 import type { NotificationData } from "./header-types";
 import Popover from "@mui/material/Popover";
-import Typography from "@mui/material/Typography";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onMobileMenuToggle?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
   const location = useLocation();
   const [pageTitle, setPageTitle] = useState("Dashboard");
   const [notifications, setNotifications] = useState<
@@ -47,7 +51,7 @@ const Header: React.FC = () => {
     // This would be replaced with an actual API call to fetch notifications
     const fetchNotifications = async () => {
       // Simulated delay for fetching notifications
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       // Simulated notifications data
       const notificationsData = [
         { id: 1, message: "New workout plan available!" },
@@ -61,6 +65,14 @@ const Header: React.FC = () => {
   return (
     <header className={styles.header}>
       <div className={styles.headerContent}>
+        <button
+          className={styles.mobileMenuButton}
+          onClick={onMobileMenuToggle}
+          aria-label="Toggle mobile menu"
+          type="button"
+        >
+          <MenuIcon />
+        </button>
         <h1>{pageTitle}</h1>
       </div>
       <ul className={styles.navList}>
@@ -94,7 +106,7 @@ const Header: React.FC = () => {
                     &times;
                   </button>
                 </div>
-                {(notifications ?? []).map((notification) => (
+                {(notifications ?? []).map(notification => (
                   <p
                     key={notification.id}
                     className={styles.notificationMessage}

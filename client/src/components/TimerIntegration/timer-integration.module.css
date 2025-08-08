@@ -1,0 +1,174 @@
+.container {
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.container:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.display {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.time {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  font-family: 'Courier New', monospace;
+  margin-bottom: 0.5rem;
+}
+
+.captured {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.buttonIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.startButton {
+  background: var(--success-color);
+  color: white;
+}
+
+.startButton:hover:not(:disabled) {
+  background: var(--success-color-dark);
+  box-shadow: 0 4px 12px rgba(var(--success-color-rgb), 0.3);
+}
+
+.pauseButton {
+  background: var(--warning-color);
+  color: white;
+}
+
+.pauseButton:hover:not(:disabled) {
+  background: var(--warning-color-dark);
+  box-shadow: 0 4px 12px rgba(var(--warning-color-rgb), 0.3);
+}
+
+.stopButton {
+  background: var(--danger-color);
+  color: white;
+}
+
+.stopButton:hover:not(:disabled) {
+  background: var(--danger-color-dark);
+  box-shadow: 0 4px 12px rgba(var(--danger-color-rgb), 0.3);
+}
+
+.captureButton {
+  background: var(--primary-color);
+  color: white;
+  font-size: 0.875rem;
+}
+
+.captureButton:hover:not(:disabled) {
+  background: var(--primary-color-dark);
+  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
+}
+
+.captureMessage {
+  background: var(--success-background);
+  color: var(--success-color);
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid var(--success-border);
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .controls {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .captureButton {
+    grid-column: 1 / -1;
+  }
+  
+  .time {
+    font-size: 1.5rem;
+  }
+}
+
+/* CSS Variables for theming */
+:root {
+  --success-color: #48bb78;
+  --success-color-dark: #38a169;
+  --success-color-rgb: 72, 187, 120;
+  --success-background: #f0fff4;
+  --success-border: #9ae6b4;
+  
+  --warning-color: #ed8936;
+  --warning-color-dark: #dd6b20;
+  --warning-color-rgb: 237, 137, 54;
+  
+  --danger-color: #f56565;
+  --danger-color-dark: #e53e3e;
+  --danger-color-rgb: 245, 101, 101;
+  
+  --primary-color-dark: #5a67d8;
+}

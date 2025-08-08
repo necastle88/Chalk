@@ -8,6 +8,18 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum ExerciseCategory {
+  CHEST
+  BACK
+  LEGS
+  ARMS
+  SHOULDERS
+  CORE
+  CARDIO
+  FULLBODY
+  OTHER
+}
+
 model User {
   id           String        @id @default(uuid())
   email        String        @unique
@@ -28,13 +40,17 @@ model WorkoutPlan {
 }
 
 model WorkoutEntry {
-  id            String      @id @default(uuid())
+  id            String            @id @default(uuid())
   date          DateTime
   exercise      String // e.g., "Bench Press"
   sets          Int
   reps          Int
   weight        Float // lbs or kg
-  workoutPlan   WorkoutPlan @relation(fields: [workoutPlanId], references: [id])
+  duration      Int? // exercise duration in seconds (for time-based exercises)
+  restDuration  Int? // rest duration in seconds
+  category      ExerciseCategory?
+  createdAt     DateTime          @default(now())
+  workoutPlan   WorkoutPlan       @relation(fields: [workoutPlanId], references: [id])
   workoutPlanId String
 }
 
@@ -61,9 +77,32 @@ model MealEntry {
 }
 
 model Exercise {
-  id          String   @id @default(uuid())
-  name        String // e.g., "Squat"
+  id          String           @id @default(uuid())
+  name        String           @unique // e.g., "Squat"
   description String? // Optional description
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  category    ExerciseCategory
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  workoutLogs WorkoutLog[]
+}
+
+model WorkoutLog {
+  id           String           @id @default(uuid())
+  userId       String
+  exerciseId   String
+  exerciseName String // Denormalized for performance and flexibility
+  category     ExerciseCategory
+  sets         Int
+  reps         Int
+  weight       Float // lbs or kg
+  duration     Int? // exercise duration in seconds (for time-based exercises)
+  restDuration Int? // rest duration in seconds
+  notes        String? // Optional notes
+  date         DateTime         @default(now())
+  createdAt    DateTime         @default(now())
+
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@index([userId, date])
+  @@index([exerciseId])
 }

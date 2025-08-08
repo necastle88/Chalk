@@ -12,6 +12,7 @@ interface LapTimerProps {
   onStart: () => void;
   onPause: () => void;
   onStop: () => void;
+  onLapCapture?: (lapTime: number) => void;
 }
 
 const LapTimer: React.FC<LapTimerProps> = ({
@@ -19,20 +20,21 @@ const LapTimer: React.FC<LapTimerProps> = ({
   onStart,
   onPause,
   onStop,
+  onLapCapture,
 }) => {
   const [lapTime, setLapTime] = React.useState<number>(0);
   const [laps, setLaps] = React.useState<number[]>([]);
 
-  // Lap timer logic with security limits
+  // Lap timer logic with limits
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | undefined;
     if (isRunning) {
       timer = setInterval(() => {
         setLapTime((prev) => {
-          // Security: Prevent extremely long lap times (24 hours max)
+          // Prevent extremely long lap times (24 hours max)
           const MAX_LAP_TIME = 86400; // 24 hours in seconds
           if (prev >= MAX_LAP_TIME) {
-            console.warn("Lap time exceeds security limit");
+            console.warn("Lap time exceeds limit");
             return prev; // Stop incrementing
           }
           return prev + 1;
@@ -61,9 +63,15 @@ const LapTimer: React.FC<LapTimerProps> = ({
   const handleLap = () => {
     // Prevent memory exhaustion - limit to 100 laps
     if (laps.length >= 100) {
-      console.warn("Maximum lap limit reached for security");
+      console.warn("Maximum lap limit reached");
       return;
     }
+
+    // Capture the lap time if callback is provided
+    if (onLapCapture && lapTime > 0) {
+      onLapCapture(lapTime);
+    }
+
     setLaps((prev) => [lapTime, ...prev]);
     setLapTime(0);
   };
@@ -150,8 +158,6 @@ const LapTimer: React.FC<LapTimerProps> = ({
           <FlagIcon />
         </button>
       </div>
-
-      {/* Show laps if any exist */}
       {laps.length > 0 && (
         <table className={styles.lapTable}>
           <thead>

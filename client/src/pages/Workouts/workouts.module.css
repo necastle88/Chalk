@@ -1,0 +1,120 @@
+.container {
+  padding: var(--spacing-xl) var(--spacing-md);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.title {
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-sm);
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: var(--darkmode-text-color);
+  font-size: 1.1rem;
+  opacity: 0.8;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.workoutsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+/* Logger section spans full width on top */
+.loggerSection {
+  grid-column: 1 / -1;
+  background: var(--darkmode-surface-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--darkmode-border-color);
+  box-shadow: var(--shadow-md);
+}
+
+.historySection,
+.journalSection {
+  background: var(--darkmode-surface-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--darkmode-border-color);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .container {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  
+  .workoutsGrid {
+    gap: var(--spacing-lg);
+  }
+  
+  .loggerSection,
+  .historySection,
+  .journalSection {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+  
+  .workoutsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .loggerSection,
+  .historySection,
+  .journalSection {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: var(--spacing-sm);
+  }
+  
+  .header {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .title {
+    font-size: 1.75rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .workoutsGrid {
+    gap: var(--spacing-md);
+  }
+  
+  .loggerSection,
+  .historySection,
+  .journalSection {
+    padding: var(--spacing-sm);
+  }
+}

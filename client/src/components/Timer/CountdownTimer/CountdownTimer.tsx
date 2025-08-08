@@ -13,6 +13,7 @@ interface CountdownTimerProps {
   onPause: () => void;
   onStop: () => void;
   onComplete?: () => void;
+  onRestCapture?: (restDuration: number) => void;
 }
 
 const CountdownTimer: React.FC<CountdownTimerProps> = ({
@@ -22,13 +23,18 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
   onPause,
   onStop,
   onComplete,
+  onRestCapture,
 }) => {
-  const [timeLeft, setTimeLeft] = React.useState<number>(duration);
+  const [timeLeft, setTimeLeft] = React.useState<number>(0); // Start with 0 instead of duration
+  const [hasStarted, setHasStarted] = React.useState(false); // Track if timer has actually started counting
 
   // Update timeLeft when duration changes
   useEffect(() => {
+    console.log("CountdownTimer: Duration changed to:", duration);
     if (duration > 0) {
       setTimeLeft(duration);
+      setHasStarted(false); // Reset the started flag when duration changes
+      console.log("CountdownTimer: TimeLeft set to:", duration);
     }
   }, [duration]);
 
@@ -36,8 +42,13 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | undefined;
     if (isRunning && timeLeft > 0 && duration > 0) {
+      // Mark that the timer has started counting
+      if (!hasStarted) {
+        setHasStarted(true);
+      }
+
       timer = setInterval(() => {
-        setTimeLeft((prev) => {
+        setTimeLeft(prev => {
           const newTime = prev > 0 ? prev - 1 : 0;
           if (newTime === 0 && onComplete) {
             onComplete();
@@ -49,19 +60,57 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isRunning, timeLeft, onComplete, duration]);
+  }, [isRunning, timeLeft, onComplete, duration, hasStarted]);
 
   // Stop timer when countdown reaches zero
   useEffect(() => {
-    if (timeLeft === 0 && isRunning) {
+    console.log(
+      "CountdownTimer: Checking completion condition - timeLeft:",
+      timeLeft,
+      "isRunning:",
+      isRunning,
+      "duration:",
+      duration,
+      "hasStarted:",
+      hasStarted
+    );
+
+    // Only trigger completion if timer has actually started counting and now reached zero
+    if (timeLeft === 0 && isRunning && duration > 0 && hasStarted) {
+      console.log(
+        "CountdownTimer: Timer completed naturally, capturing duration:",
+        duration
+      );
+      // Timer completed naturally - capture the full duration
+      if (onRestCapture) {
+        onRestCapture(duration);
+      }
       onPause(); // Auto-pause when time reaches zero
     }
-  }, [timeLeft, isRunning, onPause]);
+  }, [timeLeft, isRunning, onPause, onRestCapture, duration, hasStarted]);
 
   const handleStop = () => {
+    console.log("CountdownTimer: User manually stopped timer");
+    console.log(
+      "Duration:",
+      duration,
+      "TimeLeft:",
+      timeLeft,
+      "HasStarted:",
+      hasStarted
+    );
+
+    // User manually stopped - capture elapsed time, but only if timer had actually started
+    if (onRestCapture && duration > 0 && timeLeft < duration && hasStarted) {
+      const elapsedTime = duration - timeLeft;
+      console.log("CountdownTimer: Capturing elapsed time:", elapsedTime);
+      onRestCapture(elapsedTime);
+    }
+
     if (duration > 0) {
       setTimeLeft(duration);
     }
+    setHasStarted(false); // Reset the started flag
     onStop();
   };
 

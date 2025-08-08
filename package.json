@@ -1,0 +1,36 @@
+{
+  "name": "chalk-fitness-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "build": "npm run build --workspace=server && npm run build --workspace=client",
+    "build:client": "npm run build --workspace=client",
+    "build:server": "npm run build --workspace=server",
+    "test": "npm run test --workspace=client && npm run test --workspace=server",
+    "test:client": "npm run test --workspace=client",
+    "test:server": "npm run test --workspace=server",
+    "lint": "npm run lint --workspace=client && npm run lint --workspace=server",
+    "lint:fix": "npm run lint:fix --workspace=client && npm run lint:fix --workspace=server",
+    "format": "npm run format --workspace=client && npm run format --workspace=server",
+    "format:check": "npm run format:check --workspace=client && npm run format:check --workspace=server",
+    "clean": "npm run clean --workspace=client && npm run clean --workspace=server",
+    "db:generate": "npm run db:generate --workspace=server",
+    "db:push": "npm run db:push --workspace=server",
+    "db:migrate": "npm run db:migrate --workspace=server",
+    "db:studio": "npm run db:studio --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
