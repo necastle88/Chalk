@@ -2,6 +2,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import LocalDiningIcon from "@mui/icons-material/LocalDining";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 
 const listItems = [
   {
@@ -15,6 +16,12 @@ const listItems = [
     link: "/workouts",
     icon: <FitnessCenterIcon fontSize="small" />,
     id: "workouts",
+  },
+  {
+    name: "Journal",
+    link: "/journal",
+    icon: <MenuBookIcon fontSize="small" />,
+    id: "journal",
   },
   {
     name: "Nutrition",

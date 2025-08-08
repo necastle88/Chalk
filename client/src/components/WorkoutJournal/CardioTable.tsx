@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import type { CardioEntry, StrengthEntry } from "./types";
-import {
-  formatJournalDate,
-  formatHeartRate,
-  formatCalories,
-  formatPerceivedEffort,
-} from "./utils";
+import { formatJournalDate } from "./utils";
 import WorkoutModal from "./WorkoutModal";
 import styles from "./workout-journal.module.css";
+import historyStyles from "../WorkoutHistory/workout-history.module.css";
 
 interface CardioTableProps {
   entries: CardioEntry[];
@@ -86,22 +82,45 @@ const CardioTable: React.FC<CardioTableProps> = ({
                   </span>
                 </div>
               </td>
-              <td className={styles.durationCell}>{entry.duration} min</td>
+              <td className={styles.durationCell}>
+                <span className={historyStyles.duration}>
+                  {entry.duration}:00 duration
+                </span>
+              </td>
               <td className={styles.heartRateCell}>
                 <div className={styles.heartRateInfo}>
-                  <span className={styles.heartRateStart}>
-                    Start: {formatHeartRate(entry.heartRateStart)}
-                  </span>
-                  <span className={styles.heartRateMax}>
-                    Max: {formatHeartRate(entry.heartRateMax)}
-                  </span>
+                  {entry.heartRateStart && (
+                    <span className={historyStyles.heartRate}>
+                      HR: {entry.heartRateStart} bpm
+                    </span>
+                  )}
+                  {entry.heartRateMax && (
+                    <span className={historyStyles.heartRateMax}>
+                      Max: {entry.heartRateMax} bpm
+                    </span>
+                  )}
+                  {!entry.heartRateStart && !entry.heartRateMax && (
+                    <span className={styles.noData}>N/A</span>
+                  )}
                 </div>
               </td>
               <td className={styles.caloriesCell}>
-                {formatCalories(entry.caloriesBurned)}
+                {entry.caloriesBurned ? (
+                  <span className={historyStyles.calories}>
+                    {entry.caloriesBurned} cal
+                  </span>
+                ) : (
+                  <span className={styles.noData}>N/A</span>
+                )}
               </td>
               <td className={styles.effortCell}>
-                {formatPerceivedEffort(entry.perceivedEffort)}
+                {entry.perceivedEffort ? (
+                  <span className={historyStyles.effort}>
+                    Effort: {entry.perceivedEffort}/10
+                  </span>
+                ) : (
+                  <span className={styles.noData}>N/A</span>
+                )}
               </td>
               <td className={styles.notesCell}>
                 <div className={styles.notes} title={entry.notes || ""}>
@@ -154,33 +173,32 @@ const CardioTable: React.FC<CardioTableProps> = ({
             </div>
 
             <div className={styles.cardDetails}>
-              <div className={styles.cardStat}>
-                <span className={styles.cardLabel}>Duration:</span>
-                <span className={styles.cardValue}>{entry.duration} min</span>
-              </div>
-              <div className={styles.cardStat}>
-                <span className={styles.cardLabel}>Calories:</span>
-                <span className={styles.cardValue}>
-                  {formatCalories(entry.caloriesBurned)}
-                </span>
-              </div>
-              <div className={styles.cardStat}>
-                <span className={styles.cardLabel}>Effort:</span>
-                <span className={styles.cardValue}>
-                  {formatPerceivedEffort(entry.perceivedEffort)}
-                </span>
-              </div>
-              <div className={styles.cardStat}>
-                <span className={styles.cardLabel}>HR Start:</span>
-                <span className={styles.cardValue}>
-                  {formatHeartRate(entry.heartRateStart)}
-                </span>
-              </div>
-              <div className={styles.cardStat}>
-                <span className={styles.cardLabel}>HR Max:</span>
-                <span className={styles.cardValue}>
-                  {formatHeartRate(entry.heartRateMax)}
-                </span>
+              <div className={historyStyles.cardioStats}>
+                {entry.duration && (
+                  <span className={historyStyles.duration}>
+                    {entry.duration}:00 duration
+                  </span>
+                )}
+                {entry.heartRateStart && (
+                  <span className={historyStyles.heartRate}>
+                    HR: {entry.heartRateStart} bpm
+                  </span>
+                )}
+                {entry.heartRateMax && (
+                  <span className={historyStyles.heartRateMax}>
+                    Max: {entry.heartRateMax} bpm
+                  </span>
+                )}
+                {entry.caloriesBurned && (
+                  <span className={historyStyles.calories}>
+                    {entry.caloriesBurned} cal
+                  </span>
+                )}
+                {entry.perceivedEffort && (
+                  <span className={historyStyles.effort}>
+                    Effort: {entry.perceivedEffort}/10
+                  </span>
+                )}
               </div>
             </div>
 

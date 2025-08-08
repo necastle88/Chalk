@@ -38,6 +38,7 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
     "/workouts": "Workouts",
     "/nutrition": "Nutrition",
     "/progress": "Progress",
+    "/journal": "Journal",
     "/not-found": "Page Not Found",
   };
 

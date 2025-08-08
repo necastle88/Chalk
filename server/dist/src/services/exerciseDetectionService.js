@@ -87,20 +87,51 @@ function detectExercise(input) {
   "sets": null,
   "reps": null,
   "weight": null,
-  "duration": null
+  "duration": null,
+  "distance": null,
+  "distanceUnit": null,
+  "laps": null,
+  "heartRate": null,
+  "heartRateMax": null,
+  "perceivedEffort": null,
+  "lapTime": null,
+  "estimatedCalories": null,
+  "pace": null
 }
 
 Instructions:
-- Extract standardized exercise name (e.g., "Bench Press", "Back Squat", "Barbell Curl", "Treadmill Run")
+- Extract standardized exercise name (e.g., "Bench Press", "Back Squat", "Barbell Curl", "Treadmill Run", "Outdoor Running", "Stationary Bike")
 - Use proper capitalization and standardized naming (e.g., "Dumbbell Bench Press" not "db bench press")
 - Classify into the correct muscle group category
+
+STRENGTH TRAINING:
 - If sets/reps/weight are mentioned, extract them as numbers
-- If duration is mentioned (seconds, minutes), convert to seconds and set duration field
 - Common formats: "3x10", "3 sets of 10", "4x8 @ 185", "225 lbs 5x5", "80kg 3x5"
-- Time formats: "30 seconds", "1 minute", "1 set of 30 seconds", "2 sets of 45 seconds each"
-- Weight conversion: ALWAYS convert kg to pounds (1kg = 2.2lbs). Examples:
-  * "80kg" = 176 lbs
-  * "100kg bench press" = 220 lbs
+- Weight conversion: ALWAYS convert kg to pounds (1kg = 2.2lbs)
+
+CARDIO EXERCISES:
+- If duration is mentioned (seconds, minutes), convert to seconds and set duration field
+- Extract distance if mentioned (miles, km, meters) - convert to miles (1 km = 0.621371 miles)
+- Extract laps if mentioned as a number
+- Extract heart rate if mentioned (e.g., "158 bpm", "heart rate 140") 
+- Extract perceived effort (e.g., "easy", "moderate", "hard", "very hard")
+- Extract lap time if mentioned (e.g., "7 min lap", "8:30 per mile") - convert to seconds
+- Calculate estimated calories using this formula for running/walking:
+  * Calories = duration_minutes × body_weight_estimate × MET_value
+  * Use 70kg (154 lbs) as default body weight
+  * MET values: walking = 3.5, jogging = 7, running = 10, cycling = 8, swimming = 8
+  * For pace-based estimation: slower pace = lower MET, faster = higher MET
+- Calculate pace if distance and duration are both available (e.g., "7:30/mile")
+
+PARSING EXAMPLES:
+- "running 40 minutes 10 laps 1 mile heart rate 158 bpm effort easy lap time 7 min"
+  → Running, 40min duration, 10 laps, 1 mile distance, 158 bpm heart rate, easy effort, 7min lap time
+- "30 minute bike ride moderate intensity"
+  → Stationary Bike, 30min duration, moderate effort
+- "treadmill 5k in 25 minutes"
+  → Treadmill Run, 25min duration, 3.1 miles distance
+
+Time formats: "30 seconds", "1 minute", "7 min", "25 minutes"
   * "60kg 3x8" = 132 lbs
   * If both kg and lbs mentioned, prioritize the kg value and convert
 - Duration should be in seconds (convert minutes: 1 minute = 60 seconds)
@@ -168,6 +199,41 @@ Return ONLY the JSON object, no other text.`;
             }
             if (result.duration !== undefined && result.duration !== null) {
                 result.duration = Math.max(1, Math.min(3600, Math.floor(Number(result.duration)))) || undefined;
+            }
+            // Validate and sanitize cardio-specific fields
+            if (result.distance !== undefined && result.distance !== null) {
+                result.distance = Math.max(0.1, Math.min(100, Number(result.distance))) || undefined;
+            }
+            if (result.distanceUnit !== undefined && result.distanceUnit !== null) {
+                if (!['miles', 'km'].includes(result.distanceUnit)) {
+                    result.distanceUnit = 'miles'; // default to miles
+                }
+            }
+            if (result.laps !== undefined && result.laps !== null) {
+                result.laps = Math.max(1, Math.min(1000, Math.floor(Number(result.laps)))) || undefined;
+            }
+            if (result.heartRate !== undefined && result.heartRate !== null) {
+                result.heartRate = Math.max(60, Math.min(220, Math.floor(Number(result.heartRate)))) || undefined;
+            }
+            if (result.heartRateMax !== undefined && result.heartRateMax !== null) {
+                result.heartRateMax = Math.max(60, Math.min(220, Math.floor(Number(result.heartRateMax)))) || undefined;
+            }
+            if (result.lapTime !== undefined && result.lapTime !== null) {
+                result.lapTime = Math.max(30, Math.min(3600, Math.floor(Number(result.lapTime)))) || undefined;
+            }
+            if (result.estimatedCalories !== undefined && result.estimatedCalories !== null) {
+                result.estimatedCalories = Math.max(1, Math.min(2000, Math.floor(Number(result.estimatedCalories)))) || undefined;
+            }
+            // Sanitize perceived effort
+            if (result.perceivedEffort && typeof result.perceivedEffort === 'string') {
+                const validEfforts = ['very easy', 'easy', 'moderate', 'hard', 'very hard'];
+                const effort = result.perceivedEffort.toLowerCase().trim();
+                if (!validEfforts.includes(effort)) {
+                    result.perceivedEffort = undefined;
+                }
+                else {
+                    result.perceivedEffort = effort;
+                }
             }
             return result;
         }

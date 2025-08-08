@@ -54,6 +54,15 @@ export interface WorkoutLogEntry {
   notes?: string;
   date: string;
   aiConfidence?: number;
+  // Cardio-specific metrics
+  distance?: number;
+  laps?: number;
+  heartRate?: number;
+  heartRateMax?: number;
+  perceivedEffort?: string;
+  lapTime?: number;
+  estimatedCalories?: number;
+  pace?: string;
 }
 
 export interface ExerciseCategory {
@@ -71,6 +80,16 @@ export interface ExerciseDetection {
   reps?: number;
   weight?: number;
   duration?: number; // for time-based exercises in seconds
+  // Cardio-specific metrics
+  distance?: number; // in miles or kilometers
+  distanceUnit?: 'miles' | 'km';
+  laps?: number;
+  heartRate?: number; // average or target heart rate in bpm
+  heartRateMax?: number; // maximum heart rate in bpm
+  perceivedEffort?: 'very easy' | 'easy' | 'moderate' | 'hard' | 'very hard' | string;
+  lapTime?: number; // average lap time in seconds
+  estimatedCalories?: number; // calculated estimated calories burned
+  pace?: string; // e.g., "7:30/mile" or "4:30/km"
 }
 
 export interface WorkoutLogsResponse {

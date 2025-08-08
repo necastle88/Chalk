@@ -40,10 +40,55 @@ const WorkoutLogEntry: React.FC<WorkoutLogEntryProps> = ({
         >
           {formatCategory(log.category)}
         </span>
-        <span className={styles.workoutStats}>
-          {log.sets} sets × {log.reps} reps @ {log.weight} lbs
-        </span>
-        {log.restDuration && (
+
+        {/* Show cardio-specific metrics for cardio exercises */}
+        {log.category.toLowerCase() === "cardio" ? (
+          <div className={styles.cardioStats}>
+            {log.duration && (
+              <span className={styles.duration}>
+                {Math.floor(log.duration / 60)}:
+                {(log.duration % 60).toString().padStart(2, "0")} duration
+              </span>
+            )}
+            {log.distance && (
+              <span className={styles.distance}>{log.distance} miles</span>
+            )}
+            {log.laps && <span className={styles.laps}>{log.laps} laps</span>}
+            {log.heartRate && (
+              <span className={styles.heartRate}>HR: {log.heartRate} bpm</span>
+            )}
+            {log.heartRateMax && log.heartRate && (
+              <span className={styles.heartRateMax}>
+                Max: {log.heartRateMax} bpm
+              </span>
+            )}
+            {log.heartRateMax && !log.heartRate && (
+              <span className={styles.heartRateMax}>
+                Max HR: {log.heartRateMax} bpm
+              </span>
+            )}
+            {log.estimatedCalories && (
+              <span className={styles.calories}>
+                {log.estimatedCalories} cal
+              </span>
+            )}
+            {log.pace && (
+              <span className={styles.pace}>{log.pace}/mile pace</span>
+            )}
+            {log.perceivedEffort && (
+              <span className={styles.effort}>
+                Effort: {log.perceivedEffort}/10
+              </span>
+            )}
+          </div>
+        ) : (
+          /* Show traditional strength training metrics */
+          <span className={styles.workoutStats}>
+            {log.sets} sets × {log.reps} reps @ {log.weight} lbs
+          </span>
+        )}
+
+        {log.restDuration && log.category.toLowerCase() !== "cardio" && (
           <span className={styles.restDuration}>Rest: {log.restDuration}s</span>
         )}
         {log.aiConfidence && !compact && (

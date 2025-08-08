@@ -16,10 +16,34 @@ exports.createWorkoutLog = createWorkoutLog;
 exports.getWorkoutLogs = getWorkoutLogs;
 exports.getWorkoutStats = getWorkoutStats;
 exports.deleteWorkoutLog = deleteWorkoutLog;
+exports.updateWorkoutLog = updateWorkoutLog;
 const client_1 = require("@prisma/client");
 const exerciseDetectionService_1 = require("./exerciseDetectionService");
 const sanitize_html_1 = __importDefault(require("sanitize-html"));
 const prisma = new client_1.PrismaClient();
+// Helper function to extract cardio metrics from notes
+function extractCardioMetrics(notes, category) {
+    if (!notes || category !== client_1.ExerciseCategory.CARDIO) {
+        return {};
+    }
+    const cardioMatch = notes.match(/\[CARDIO_METRICS\](.+?)(?:\n|$)/);
+    if (cardioMatch) {
+        try {
+            return JSON.parse(cardioMatch[1]);
+        }
+        catch (error) {
+            console.warn('Failed to parse cardio metrics from notes:', error);
+            return {};
+        }
+    }
+    return {};
+}
+// Helper function to clean notes by removing cardio metrics
+function cleanNotes(notes) {
+    if (!notes)
+        return undefined;
+    return notes.replace(/\[CARDIO_METRICS\].+?(?:\n|$)/g, '').trim() || undefined;
+}
 // OWASP Security: Input validation and sanitization
 function validateWorkoutLogInput(data) {
     // Validate required fields
@@ -56,6 +80,47 @@ function validateWorkoutLogInput(data) {
             throw new Error('Invalid exercise category');
         }
     }
+    // Validate cardio-specific fields
+    if (data.distance !== undefined) {
+        if (typeof data.distance !== 'number' || data.distance < 0 || data.distance > 100) {
+            throw new Error('Distance must be a number between 0 and 100 miles');
+        }
+    }
+    if (data.laps !== undefined) {
+        if (typeof data.laps !== 'number' || data.laps < 1 || data.laps > 1000) {
+            throw new Error('Laps must be a number between 1 and 1000');
+        }
+    }
+    if (data.heartRate !== undefined) {
+        if (typeof data.heartRate !== 'number' || data.heartRate < 60 || data.heartRate > 220) {
+            throw new Error('Heart rate must be a number between 60 and 220 bpm');
+        }
+    }
+    if (data.heartRateMax !== undefined) {
+        if (typeof data.heartRateMax !== 'number' || data.heartRateMax < 60 || data.heartRateMax > 220) {
+            throw new Error('Maximum heart rate must be a number between 60 and 220 bpm');
+        }
+    }
+    if (data.lapTime !== undefined) {
+        if (typeof data.lapTime !== 'number' || data.lapTime < 30 || data.lapTime > 3600) {
+            throw new Error('Lap time must be a number between 30 and 3600 seconds');
+        }
+    }
+    if (data.estimatedCalories !== undefined) {
+        if (typeof data.estimatedCalories !== 'number' || data.estimatedCalories < 1 || data.estimatedCalories > 2000) {
+            throw new Error('Estimated calories must be a number between 1 and 2000');
+        }
+    }
+    if (data.perceivedEffort !== undefined) {
+        if (typeof data.perceivedEffort !== 'string' || data.perceivedEffort.trim().length === 0) {
+            throw new Error('Perceived effort must be a non-empty string');
+        }
+    }
+    if (data.pace !== undefined) {
+        if (typeof data.pace !== 'string' || data.pace.trim().length === 0) {
+            throw new Error('Pace must be a non-empty string');
+        }
+    }
 }
 function sanitizeWorkoutLogData(data) {
     return {
@@ -69,7 +134,16 @@ function sanitizeWorkoutLogData(data) {
             allowedTags: [],
             allowedAttributes: {}
         }).slice(0, 500) : undefined,
-        category: data.category
+        category: data.category,
+        // Cardio-specific fields
+        distance: data.distance ? Math.round(Math.abs(data.distance) * 100) / 100 : undefined,
+        laps: data.laps ? Math.floor(Math.abs(data.laps)) : undefined,
+        heartRate: data.heartRate ? Math.floor(Math.abs(data.heartRate)) : undefined,
+        heartRateMax: data.heartRateMax ? Math.floor(Math.abs(data.heartRateMax)) : undefined,
+        lapTime: data.lapTime ? Math.floor(Math.abs(data.lapTime)) : undefined,
+        estimatedCalories: data.estimatedCalories ? Math.floor(Math.abs(data.estimatedCalories)) : undefined,
+        perceivedEffort: data.perceivedEffort ? data.perceivedEffort.trim() : undefined,
+        pace: data.pace ? data.pace.trim() : undefined,
     };
 }
 function createWorkoutLog(userId_1, data_1) {
@@ -124,6 +198,31 @@ function createWorkoutLog(userId_1, data_1) {
                 });
             }
             // Create workout log entry
+            // For cardio exercises, embed cardio metrics in notes as JSON
+            let finalNotes = sanitizedData.notes || '';
+            if (category === client_1.ExerciseCategory.CARDIO) {
+                const cardioMetrics = {};
+                if (sanitizedData.distance)
+                    cardioMetrics.distance = sanitizedData.distance;
+                if (sanitizedData.laps)
+                    cardioMetrics.laps = sanitizedData.laps;
+                if (sanitizedData.heartRate)
+                    cardioMetrics.heartRate = sanitizedData.heartRate;
+                if (sanitizedData.heartRateMax)
+                    cardioMetrics.heartRateMax = sanitizedData.heartRateMax;
+                if (sanitizedData.perceivedEffort)
+                    cardioMetrics.perceivedEffort = sanitizedData.perceivedEffort;
+                if (sanitizedData.lapTime)
+                    cardioMetrics.lapTime = sanitizedData.lapTime;
+                if (sanitizedData.estimatedCalories)
+                    cardioMetrics.estimatedCalories = sanitizedData.estimatedCalories;
+                if (sanitizedData.pace)
+                    cardioMetrics.pace = sanitizedData.pace;
+                if (Object.keys(cardioMetrics).length > 0) {
+                    const cardioData = JSON.stringify(cardioMetrics);
+                    finalNotes = finalNotes ? `${finalNotes}\n[CARDIO_METRICS]${cardioData}` : `[CARDIO_METRICS]${cardioData}`;
+                }
+            }
             const workoutLog = yield prisma.workoutLog.create({
                 data: {
                     userId,
@@ -133,24 +232,15 @@ function createWorkoutLog(userId_1, data_1) {
                     sets: sanitizedData.sets,
                     reps: sanitizedData.reps,
                     weight: sanitizedData.weight,
-                    // duration: sanitizedData.duration, // TODO: Enable after Prisma client regeneration
+                    duration: sanitizedData.duration,
                     restDuration: sanitizedData.restDuration,
-                    notes: sanitizedData.notes
+                    notes: finalNotes || undefined
                 }
             });
-            return {
-                id: workoutLog.id,
-                exerciseName: workoutLog.exerciseName,
-                category: workoutLog.category,
-                sets: workoutLog.sets,
-                reps: workoutLog.reps,
-                weight: workoutLog.weight,
-                // duration: workoutLog.duration || undefined, // TODO: Enable after Prisma client regeneration
-                restDuration: workoutLog.restDuration || undefined,
-                notes: workoutLog.notes || undefined,
-                date: workoutLog.date,
-                aiConfidence
-            };
+            // Extract cardio metrics for response
+            const cardioMetrics = extractCardioMetrics(workoutLog.notes, workoutLog.category);
+            const cleanedNotes = cleanNotes(workoutLog.notes);
+            return Object.assign({ id: workoutLog.id, exerciseName: workoutLog.exerciseName, category: workoutLog.category, sets: workoutLog.sets, reps: workoutLog.reps, weight: workoutLog.weight, duration: workoutLog.duration || undefined, restDuration: workoutLog.restDuration || undefined, notes: cleanedNotes, date: workoutLog.date, aiConfidence }, cardioMetrics);
         }
         catch (error) {
             console.error('Error creating workout log:', error);
@@ -192,18 +282,11 @@ function getWorkoutLogs(userId_1) {
                 take: limit,
                 skip: offset
             });
-            const data = workoutLogs.map(log => ({
-                id: log.id,
-                exerciseName: log.exerciseName,
-                category: log.category,
-                sets: log.sets,
-                reps: log.reps,
-                weight: log.weight,
-                // duration: log.duration || undefined, // TODO: Enable after Prisma client regeneration
-                restDuration: log.restDuration || undefined,
-                notes: log.notes || undefined,
-                date: log.date
-            }));
+            const data = workoutLogs.map(log => {
+                const cardioMetrics = extractCardioMetrics(log.notes, log.category);
+                const cleanedNotes = cleanNotes(log.notes);
+                return Object.assign({ id: log.id, exerciseName: log.exerciseName, category: log.category, sets: log.sets, reps: log.reps, weight: log.weight, duration: log.duration || undefined, restDuration: log.restDuration || undefined, notes: cleanedNotes, date: log.date }, cardioMetrics);
+            });
             return {
                 data,
                 pagination: {
@@ -281,6 +364,99 @@ function deleteWorkoutLog(userId, logId) {
         }
         catch (error) {
             console.error('Error deleting workout log:', error);
+            throw error;
+        }
+    });
+}
+function updateWorkoutLog(userId, logId, data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (!userId || !logId) {
+                throw new Error('User ID and log ID are required');
+            }
+            // Verify ownership before update
+            const existingLog = yield prisma.workoutLog.findFirst({
+                where: { id: logId, userId }
+            });
+            if (!existingLog) {
+                throw new Error('Workout log not found or access denied');
+            }
+            // Validate and sanitize update data
+            const updateData = {};
+            if (data.exerciseName !== undefined) {
+                if (typeof data.exerciseName !== 'string' || data.exerciseName.trim().length === 0) {
+                    throw new Error('Exercise name must be a non-empty string');
+                }
+                updateData.exerciseName = (0, sanitize_html_1.default)(data.exerciseName.trim(), {
+                    allowedTags: [],
+                    allowedAttributes: {}
+                }).slice(0, 200);
+            }
+            if (data.sets !== undefined) {
+                if (typeof data.sets !== 'number' || data.sets < 1 || data.sets > 50) {
+                    throw new Error('Sets must be a number between 1 and 50');
+                }
+                updateData.sets = Math.floor(Math.abs(data.sets));
+            }
+            if (data.reps !== undefined) {
+                if (typeof data.reps !== 'number' || data.reps < 1 || data.reps > 1000) {
+                    throw new Error('Reps must be a number between 1 and 1000');
+                }
+                updateData.reps = Math.floor(Math.abs(data.reps));
+            }
+            if (data.weight !== undefined) {
+                if (typeof data.weight !== 'number' || data.weight < 0 || data.weight > 2000) {
+                    throw new Error('Weight must be a number between 0 and 2000');
+                }
+                updateData.weight = Math.abs(data.weight);
+            }
+            if (data.duration !== undefined) {
+                if (typeof data.duration !== 'number' || data.duration < 0 || data.duration > 3600) {
+                    throw new Error('Duration must be a number between 0 and 3600 seconds');
+                }
+                updateData.duration = Math.floor(Math.abs(data.duration));
+            }
+            if (data.restDuration !== undefined) {
+                if (typeof data.restDuration !== 'number' || data.restDuration < 0 || data.restDuration > 3600) {
+                    throw new Error('Rest duration must be a number between 0 and 3600 seconds');
+                }
+                updateData.restDuration = Math.floor(Math.abs(data.restDuration));
+            }
+            if (data.notes !== undefined) {
+                if (typeof data.notes !== 'string') {
+                    throw new Error('Notes must be a string');
+                }
+                updateData.notes = data.notes.trim() ? (0, sanitize_html_1.default)(data.notes.trim(), {
+                    allowedTags: [],
+                    allowedAttributes: {}
+                }).slice(0, 500) : null;
+            }
+            if (data.category !== undefined) {
+                if (!Object.values(client_1.ExerciseCategory).includes(data.category)) {
+                    throw new Error('Invalid exercise category');
+                }
+                updateData.category = data.category;
+            }
+            // Update the workout log
+            const updatedLog = yield prisma.workoutLog.update({
+                where: { id: logId },
+                data: updateData
+            });
+            return {
+                id: updatedLog.id,
+                exerciseName: updatedLog.exerciseName,
+                category: updatedLog.category,
+                sets: updatedLog.sets,
+                reps: updatedLog.reps,
+                weight: updatedLog.weight,
+                duration: updatedLog.duration || undefined,
+                restDuration: updatedLog.restDuration || undefined,
+                notes: updatedLog.notes || undefined,
+                date: updatedLog.date
+            };
+        }
+        catch (error) {
+            console.error('Error updating workout log:', error);
             throw error;
         }
     });

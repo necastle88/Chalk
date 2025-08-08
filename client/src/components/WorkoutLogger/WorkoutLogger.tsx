@@ -647,14 +647,16 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({ onWorkoutLogged }) => {
               </div>
 
               <div className={styles.inputGroup}>
-                <label htmlFor="duration">Duration (seconds)</label>
+                <label htmlFor="duration">Duration (minutes)</label>
                 <input
                   id="duration"
                   type="number"
-                  value={duration}
-                  onChange={e => setDuration(parseInt(e.target.value) || 0)}
+                  value={duration > 0 ? Math.round(duration / 60) : ""}
+                  onChange={e =>
+                    setDuration((parseInt(e.target.value) || 0) * 60)
+                  }
                   min="0"
-                  max="3600"
+                  max="60"
                   placeholder="For time-based exercises"
                   disabled={workoutReady}
                 />
@@ -761,7 +763,68 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({ onWorkoutLogged }) => {
                 <div className={styles.detectedValue}>
                   <label>Duration</label>
                   <span className={styles.valueDisplay}>
-                    {aiSuggestion.duration}s
+                    {aiSuggestion.duration >= 60
+                      ? `${Math.round(aiSuggestion.duration / 60)} min`
+                      : `${aiSuggestion.duration}s`}
+                  </span>
+                </div>
+              )}
+              {aiSuggestion.distance && (
+                <div className={styles.detectedValue}>
+                  <label>Distance</label>
+                  <span className={styles.valueDisplay}>
+                    {aiSuggestion.distance}{" "}
+                    {aiSuggestion.distanceUnit || "miles"}
+                  </span>
+                </div>
+              )}
+              {aiSuggestion.laps && (
+                <div className={styles.detectedValue}>
+                  <label>Laps</label>
+                  <span className={styles.valueDisplay}>
+                    {aiSuggestion.laps}
+                  </span>
+                </div>
+              )}
+              {aiSuggestion.heartRate && (
+                <div className={styles.detectedValue}>
+                  <label>Heart Rate</label>
+                  <span className={styles.valueDisplay}>
+                    {aiSuggestion.heartRate} bpm
+                  </span>
+                </div>
+              )}
+              {aiSuggestion.perceivedEffort && (
+                <div className={styles.detectedValue}>
+                  <label>Effort</label>
+                  <span className={styles.valueDisplay}>
+                    {aiSuggestion.perceivedEffort}
+                  </span>
+                </div>
+              )}
+              {aiSuggestion.lapTime && (
+                <div className={styles.detectedValue}>
+                  <label>Lap Time</label>
+                  <span className={styles.valueDisplay}>
+                    {aiSuggestion.lapTime >= 60
+                      ? `${Math.floor(aiSuggestion.lapTime / 60)}:${(aiSuggestion.lapTime % 60).toString().padStart(2, "0")} min`
+                      : `${aiSuggestion.lapTime}s`}
+                  </span>
+                </div>
+              )}
+              {aiSuggestion.estimatedCalories && (
+                <div className={styles.detectedValue}>
+                  <label>Est. Calories</label>
+                  <span className={styles.valueDisplay}>
+                    {aiSuggestion.estimatedCalories} cal
+                  </span>
+                </div>
+              )}
+              {aiSuggestion.pace && (
+                <div className={styles.detectedValue}>
+                  <label>Pace</label>
+                  <span className={styles.valueDisplay}>
+                    {aiSuggestion.pace}
                   </span>
                 </div>
               )}
@@ -810,6 +873,11 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({ onWorkoutLogged }) => {
             onRestDurationCapture={handleRestDurationCapture}
             onLapTimeCapture={handleLapTimeCapture}
             aiMode={useAI}
+            workoutType={
+              aiSuggestion?.category?.toLowerCase() === "cardio"
+                ? "cardio"
+                : "strength"
+            }
           />
         </div>
 

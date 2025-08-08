@@ -349,6 +349,13 @@
   color: var(--accent-color);
 }
 
+.noData {
+  color: var(--darkmode-text-color);
+  opacity: 0.5;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
 .effortCell {
   min-width: 80px;
   text-align: center;

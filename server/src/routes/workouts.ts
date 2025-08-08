@@ -6,7 +6,8 @@ import {
   createWorkoutLog, 
   getWorkoutLogs, 
   getWorkoutStats, 
-  deleteWorkoutLog 
+  deleteWorkoutLog,
+  updateWorkoutLog 
 } from '../services/workoutService';
 import { detectExercise } from '../services/exerciseDetectionService';
 import { ExerciseCategory } from '@prisma/client';
@@ -72,7 +73,44 @@ const validateWorkoutLog = [
   body('useAI')
     .optional()
     .isBoolean()
-    .withMessage('useAI must be a boolean')
+    .withMessage('useAI must be a boolean'),
+  // Cardio-specific field validations
+  body('distance')
+    .optional()
+    .isFloat({ min: 0, max: 100 })
+    .withMessage('Distance must be between 0 and 100 miles'),
+  body('laps')
+    .optional()
+    .isInt({ min: 1, max: 1000 })
+    .withMessage('Laps must be between 1 and 1000'),
+  body('heartRate')
+    .optional()
+    .isInt({ min: 60, max: 220 })
+    .withMessage('Heart rate must be between 60 and 220 bpm'),
+  body('heartRateMax')
+    .optional()
+    .isInt({ min: 60, max: 220 })
+    .withMessage('Maximum heart rate must be between 60 and 220 bpm'),
+  body('lapTime')
+    .optional()
+    .isInt({ min: 30, max: 3600 })
+    .withMessage('Lap time must be between 30 and 3600 seconds'),
+  body('estimatedCalories')
+    .optional()
+    .isInt({ min: 1, max: 2000 })
+    .withMessage('Estimated calories must be between 1 and 2000'),
+  body('perceivedEffort')
+    .optional()
+    .isString()
+    .isLength({ min: 1, max: 50 })
+    .trim()
+    .withMessage('Perceived effort must be 1-50 characters'),
+  body('pace')
+    .optional()
+    .isString()
+    .isLength({ min: 1, max: 20 })
+    .trim()
+    .withMessage('Pace must be 1-20 characters')
 ];
 
 const validateWorkoutQuery = [
@@ -115,6 +153,82 @@ const validateExerciseDetection = [
     .trim()
     .escape()
     .withMessage('Exercise description must be 1-200 characters')
+];
+
+const validateWorkoutLogUpdate = [
+  body('exerciseName')
+    .optional()
+    .isString()
+    .isLength({ min: 1, max: 200 })
+    .trim()
+    .escape()
+    .withMessage('Exercise name must be 1-200 characters'),
+  body('sets')
+    .optional()
+    .isInt({ min: 1, max: 50 })
+    .withMessage('Sets must be between 1 and 50'),
+  body('reps')
+    .optional()
+    .isInt({ min: 1, max: 1000 })
+    .withMessage('Reps must be between 1 and 1000'),
+  body('weight')
+    .optional()
+    .isFloat({ min: 0, max: 2000 })
+    .withMessage('Weight must be between 0 and 2000'),
+  body('duration')
+    .optional()
+    .isInt({ min: 0, max: 3600 })
+    .withMessage('Duration must be between 0 and 3600 seconds'),
+  body('restDuration')
+    .optional()
+    .isInt({ min: 0, max: 3600 })
+    .withMessage('Rest duration must be between 0 and 3600 seconds'),
+  body('notes')
+    .optional()
+    .isString()
+    .isLength({ max: 500 })
+    .withMessage('Notes must be maximum 500 characters'),
+  body('category')
+    .optional()
+    .isIn(Object.values(ExerciseCategory))
+    .withMessage('Invalid exercise category'),
+  // Cardio-specific field validations
+  body('distance')
+    .optional()
+    .isFloat({ min: 0, max: 100 })
+    .withMessage('Distance must be between 0 and 100 miles'),
+  body('laps')
+    .optional()
+    .isInt({ min: 1, max: 1000 })
+    .withMessage('Laps must be between 1 and 1000'),
+  body('heartRate')
+    .optional()
+    .isInt({ min: 60, max: 220 })
+    .withMessage('Heart rate must be between 60 and 220 bpm'),
+  body('heartRateMax')
+    .optional()
+    .isInt({ min: 60, max: 220 })
+    .withMessage('Maximum heart rate must be between 60 and 220 bpm'),
+  body('lapTime')
+    .optional()
+    .isInt({ min: 30, max: 3600 })
+    .withMessage('Lap time must be between 30 and 3600 seconds'),
+  body('estimatedCalories')
+    .optional()
+    .isInt({ min: 1, max: 2000 })
+    .withMessage('Estimated calories must be between 1 and 2000'),
+  body('perceivedEffort')
+    .optional()
+    .isString()
+    .isLength({ min: 1, max: 50 })
+    .trim()
+    .withMessage('Perceived effort must be 1-50 characters'),
+  body('pace')
+    .optional()
+    .isString()
+    .isLength({ min: 1, max: 20 })
+    .trim()
+    .withMessage('Pace must be 1-20 characters')
 ];
 
 // Validation error handler
@@ -242,6 +356,49 @@ router.get('/stats',
       console.error('Error fetching workout stats:', error);
       res.status(500).json({
         error: 'Failed to fetch workout stats',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+);
+
+// PUT /api/workouts/:logId - Update a workout log entry
+router.put('/:logId',
+  requireAuth(),
+  validateLogId,
+  validateWorkoutLogUpdate,
+  handleValidationErrors,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const userId = req.auth.userId;
+      const { logId } = req.params;
+
+      const updatedWorkout = await updateWorkoutLog(userId, logId, req.body);
+
+      res.json({
+        success: true,
+        data: updatedWorkout
+      });
+    } catch (error) {
+      console.error('Error updating workout log:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('not found') || error.message.includes('access denied')) {
+          return res.status(404).json({
+            error: 'Workout not found',
+            message: error.message
+          });
+        }
+        if (error.message.includes('must be') || error.message.includes('Invalid')) {
+          return res.status(400).json({
+            error: 'Validation error',
+            message: error.message
+          });
+        }
+      }
+      
+      res.status(500).json({
+        error: 'Failed to update workout log',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }

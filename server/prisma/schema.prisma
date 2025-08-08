@@ -97,7 +97,7 @@ model WorkoutLog {
   weight       Float // lbs or kg
   duration     Int? // exercise duration in seconds (for time-based exercises)
   restDuration Int? // rest duration in seconds
-  notes        String? // Optional notes
+  notes        String? // Optional notes - can include cardio metrics as JSON
   date         DateTime         @default(now())
   createdAt    DateTime         @default(now())
 

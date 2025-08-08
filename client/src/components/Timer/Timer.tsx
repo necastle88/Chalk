@@ -3,11 +3,16 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import styles from "./timer.module.css";
 import LapTimer from "./LapTimer";
 import CountdownTimer from "./CountdownTimer";
+import CardioTimer from "./CardioTimer";
+import type { CardioWorkoutData } from "./CardioTimer/CardioWorkoutModal";
 
 interface TimerProps {
   onRestDurationCapture?: (duration: number) => void;
   onLapTimeCapture?: (lapTime: number) => void;
+  onCardioDurationCapture?: (duration: number) => void;
+  onCardioWorkoutSave?: (workoutData: CardioWorkoutData) => void;
   aiMode?: boolean;
+  workoutType?: "strength" | "cardio";
 }
 
 export interface TimerRef {
@@ -15,9 +20,19 @@ export interface TimerRef {
 }
 
 const Timer = forwardRef<TimerRef, TimerProps>(
-  ({ onRestDurationCapture, onLapTimeCapture, aiMode = false }, ref) => {
+  (
+    {
+      onRestDurationCapture,
+      onLapTimeCapture,
+      onCardioDurationCapture,
+      onCardioWorkoutSave,
+      aiMode = false,
+      workoutType = "strength",
+    },
+    ref
+  ) => {
     const [timerType, setTimerType] = React.useState(
-      aiMode ? "rest" : "Select Type"
+      aiMode ? "rest" : workoutType === "cardio" ? "cardio" : "Select Type"
     );
     const [timerDuration, setTimerDuration] = React.useState(
       aiMode ? "90" : "Select Duration"
@@ -32,18 +47,21 @@ const Timer = forwardRef<TimerRef, TimerProps>(
       setDisplayWarning(false);
     }, [timerType]);
 
-    // Set defaults when AI mode changes
+    // Set defaults when AI mode or workout type changes
     useEffect(() => {
       if (aiMode) {
         setTimerType("rest");
         setTimerDuration("90"); // Moderate Rest (1.5 min)
+      } else if (workoutType === "cardio") {
+        setTimerType("cardio");
+        setTimerDuration("Select Duration"); // Not needed for cardio
       } else {
         setTimerType("Select Type");
         setTimerDuration("Select Duration");
       }
       setTimerRunning(false);
       setDisplayWarning(false);
-    }, [aiMode]);
+    }, [aiMode, workoutType]);
 
     // Expose reset function to parent component
     useImperativeHandle(ref, () => ({
@@ -96,9 +114,12 @@ const Timer = forwardRef<TimerRef, TimerProps>(
         duration <= MAX_TIMER_DURATION &&
         Number.isInteger(duration);
 
+      // For cardio and workout types, no duration validation needed
+      // For countdown timers, duration validation is required
       if (
         timerType === "Select Type" ||
         (timerType !== "workout" &&
+          timerType !== "cardio" &&
           (timerDuration === "Select Duration" || !isValidDuration))
       ) {
         setDisplayWarning(true);
@@ -142,7 +163,10 @@ const Timer = forwardRef<TimerRef, TimerProps>(
         <div className={styles.warningMessage}>
           <p>
             Please select a timer type
-            {timerType !== "workout" ? " and duration" : ""} before starting.
+            {timerType !== "workout" && timerType !== "cardio"
+              ? " and duration"
+              : ""}{" "}
+            before starting.
           </p>
           <button className={styles.closeButton} onClick={handleCloseWarning}>
             <CancelIcon />
@@ -166,9 +190,10 @@ const Timer = forwardRef<TimerRef, TimerProps>(
                 </option>
                 <option value="workout">Lap</option>
                 <option value="rest">Rest</option>
+                <option value="cardio">Cardio Workout</option>
               </select>
             </div>
-            {timerType !== "workout" && (
+            {timerType !== "workout" && timerType !== "cardio" && (
               <div className={styles.selectContainer}>
                 <select
                   className={styles.timerSelect}
@@ -222,6 +247,18 @@ const Timer = forwardRef<TimerRef, TimerProps>(
               onStop={handleStop}
               onComplete={handleTimerComplete}
               onRestCapture={onRestDurationCapture}
+            />
+          )}
+          {timerType === "cardio" && (
+            <CardioTimer
+              key={`cardio-${resetKey}`} // Force remount on reset
+              isRunning={timerRunning}
+              onStart={handleStart}
+              onPause={handlePause}
+              onStop={handleStop}
+              onLapCapture={handleLapCapture}
+              onDurationCapture={onCardioDurationCapture}
+              onWorkoutSave={onCardioWorkoutSave}
             />
           )}
           {timerType === "Select Type" && (

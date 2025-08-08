@@ -87,7 +87,44 @@ const validateWorkoutLog = [
     (0, express_validator_1.body)('useAI')
         .optional()
         .isBoolean()
-        .withMessage('useAI must be a boolean')
+        .withMessage('useAI must be a boolean'),
+    // Cardio-specific field validations
+    (0, express_validator_1.body)('distance')
+        .optional()
+        .isFloat({ min: 0, max: 100 })
+        .withMessage('Distance must be between 0 and 100 miles'),
+    (0, express_validator_1.body)('laps')
+        .optional()
+        .isInt({ min: 1, max: 1000 })
+        .withMessage('Laps must be between 1 and 1000'),
+    (0, express_validator_1.body)('heartRate')
+        .optional()
+        .isInt({ min: 60, max: 220 })
+        .withMessage('Heart rate must be between 60 and 220 bpm'),
+    (0, express_validator_1.body)('heartRateMax')
+        .optional()
+        .isInt({ min: 60, max: 220 })
+        .withMessage('Maximum heart rate must be between 60 and 220 bpm'),
+    (0, express_validator_1.body)('lapTime')
+        .optional()
+        .isInt({ min: 30, max: 3600 })
+        .withMessage('Lap time must be between 30 and 3600 seconds'),
+    (0, express_validator_1.body)('estimatedCalories')
+        .optional()
+        .isInt({ min: 1, max: 2000 })
+        .withMessage('Estimated calories must be between 1 and 2000'),
+    (0, express_validator_1.body)('perceivedEffort')
+        .optional()
+        .isString()
+        .isLength({ min: 1, max: 50 })
+        .trim()
+        .withMessage('Perceived effort must be 1-50 characters'),
+    (0, express_validator_1.body)('pace')
+        .optional()
+        .isString()
+        .isLength({ min: 1, max: 20 })
+        .trim()
+        .withMessage('Pace must be 1-20 characters')
 ];
 const validateWorkoutQuery = [
     (0, express_validator_1.query)('limit')
@@ -127,6 +164,81 @@ const validateExerciseDetection = [
         .trim()
         .escape()
         .withMessage('Exercise description must be 1-200 characters')
+];
+const validateWorkoutLogUpdate = [
+    (0, express_validator_1.body)('exerciseName')
+        .optional()
+        .isString()
+        .isLength({ min: 1, max: 200 })
+        .trim()
+        .escape()
+        .withMessage('Exercise name must be 1-200 characters'),
+    (0, express_validator_1.body)('sets')
+        .optional()
+        .isInt({ min: 1, max: 50 })
+        .withMessage('Sets must be between 1 and 50'),
+    (0, express_validator_1.body)('reps')
+        .optional()
+        .isInt({ min: 1, max: 1000 })
+        .withMessage('Reps must be between 1 and 1000'),
+    (0, express_validator_1.body)('weight')
+        .optional()
+        .isFloat({ min: 0, max: 2000 })
+        .withMessage('Weight must be between 0 and 2000'),
+    (0, express_validator_1.body)('duration')
+        .optional()
+        .isInt({ min: 0, max: 3600 })
+        .withMessage('Duration must be between 0 and 3600 seconds'),
+    (0, express_validator_1.body)('restDuration')
+        .optional()
+        .isInt({ min: 0, max: 3600 })
+        .withMessage('Rest duration must be between 0 and 3600 seconds'),
+    (0, express_validator_1.body)('notes')
+        .optional()
+        .isString()
+        .isLength({ max: 500 })
+        .withMessage('Notes must be maximum 500 characters'),
+    (0, express_validator_1.body)('category')
+        .optional()
+        .isIn(Object.values(client_1.ExerciseCategory))
+        .withMessage('Invalid exercise category'),
+    // Cardio-specific field validations
+    (0, express_validator_1.body)('distance')
+        .optional()
+        .isFloat({ min: 0, max: 100 })
+        .withMessage('Distance must be between 0 and 100 miles'),
+    (0, express_validator_1.body)('laps')
+        .optional()
+        .isInt({ min: 1, max: 1000 })
+        .withMessage('Laps must be between 1 and 1000'),
+    (0, express_validator_1.body)('heartRate')
+        .optional()
+        .isInt({ min: 60, max: 220 })
+        .withMessage('Heart rate must be between 60 and 220 bpm'),
+    (0, express_validator_1.body)('heartRateMax')
+        .optional()
+        .isInt({ min: 60, max: 220 })
+        .withMessage('Maximum heart rate must be between 60 and 220 bpm'),
+    (0, express_validator_1.body)('lapTime')
+        .optional()
+        .isInt({ min: 30, max: 3600 })
+        .withMessage('Lap time must be between 30 and 3600 seconds'),
+    (0, express_validator_1.body)('estimatedCalories')
+        .optional()
+        .isInt({ min: 1, max: 2000 })
+        .withMessage('Estimated calories must be between 1 and 2000'),
+    (0, express_validator_1.body)('perceivedEffort')
+        .optional()
+        .isString()
+        .isLength({ min: 1, max: 50 })
+        .trim()
+        .withMessage('Perceived effort must be 1-50 characters'),
+    (0, express_validator_1.body)('pace')
+        .optional()
+        .isString()
+        .isLength({ min: 1, max: 20 })
+        .trim()
+        .withMessage('Pace must be 1-20 characters')
 ];
 // Validation error handler
 const handleValidationErrors = (req, res, next) => {
@@ -216,6 +328,39 @@ router.get('/stats', (0, express_2.requireAuth)(), validateWorkoutQuery, handleV
         console.error('Error fetching workout stats:', error);
         res.status(500).json({
             error: 'Failed to fetch workout stats',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+}));
+// PUT /api/workouts/:logId - Update a workout log entry
+router.put('/:logId', (0, express_2.requireAuth)(), validateLogId, validateWorkoutLogUpdate, handleValidationErrors, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.auth.userId;
+        const { logId } = req.params;
+        const updatedWorkout = yield (0, workoutService_1.updateWorkoutLog)(userId, logId, req.body);
+        res.json({
+            success: true,
+            data: updatedWorkout
+        });
+    }
+    catch (error) {
+        console.error('Error updating workout log:', error);
+        if (error instanceof Error) {
+            if (error.message.includes('not found') || error.message.includes('access denied')) {
+                return res.status(404).json({
+                    error: 'Workout not found',
+                    message: error.message
+                });
+            }
+            if (error.message.includes('must be') || error.message.includes('Invalid')) {
+                return res.status(400).json({
+                    error: 'Validation error',
+                    message: error.message
+                });
+            }
+        }
+        res.status(500).json({
+            error: 'Failed to update workout log',
             message: error instanceof Error ? error.message : 'Unknown error'
         });
     }
