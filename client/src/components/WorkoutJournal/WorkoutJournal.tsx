@@ -2,8 +2,7 @@ import React from "react";
 import type { WorkoutJournalProps, StrengthEntry, CardioEntry } from "./types";
 import { useWorkoutJournal } from "./useWorkoutJournal";
 import JournalFilters from "./JournalFilters";
-import StrengthTable from "./StrengthTable";
-import CardioTable from "./CardioTable";
+import DailySessionView from "./DailySessionView";
 import JournalPaginationComponent from "./JournalPagination";
 import WorkoutLogModal from "./WorkoutLogModal";
 import { DEFAULT_JOURNAL_LIMIT } from "./constants";
@@ -27,7 +26,6 @@ const WorkoutJournal: React.FC<WorkoutJournalProps> = ({
     isModalOpen,
     updateFilters,
     handlePageChange,
-    navigateToWorkoutLog,
     closeModal,
     updateJournalEntry,
     deleteJournalEntry,
@@ -80,6 +78,12 @@ const WorkoutJournal: React.FC<WorkoutJournalProps> = ({
           {/* Exercise Type Tabs */}
           <div className={styles.exerciseTabs}>
             <button
+              onClick={() => updateFilters({ exerciseType: "daily" })}
+              className={`${styles.tabButton} ${filters.exerciseType === "daily" ? styles.active : ""}`}
+            >
+              Daily Sessions ({journalEntries.length})
+            </button>
+            <button
               onClick={() => updateFilters({ exerciseType: "all" })}
               className={`${styles.tabButton} ${filters.exerciseType === "all" ? styles.active : ""}`}
             >
@@ -101,56 +105,36 @@ const WorkoutJournal: React.FC<WorkoutJournalProps> = ({
 
           {/* Tables */}
           <div className={styles.tablesContainer}>
-            {filters.exerciseType === "strength" && (
-              <div className={styles.tableSection}>
-                <h3 className={styles.sectionTitle}>Strength Training</h3>
-                <StrengthTable
-                  entries={strengthEntries}
-                  onNavigateToLog={navigateToWorkoutLog}
-                  onUpdateEntry={updateJournalEntry}
-                  onDeleteEntry={deleteJournalEntry}
-                />
-              </div>
-            )}
-
-            {filters.exerciseType === "cardio" && (
-              <div className={styles.tableSection}>
-                <h3 className={styles.sectionTitle}>Cardio Workouts</h3>
-                <CardioTable
-                  entries={cardioEntries}
-                  onNavigateToLog={navigateToWorkoutLog}
-                  onUpdateEntry={updateJournalEntry}
-                  onDeleteEntry={deleteJournalEntry}
-                />
-              </div>
+            {filters.exerciseType === "daily" && (
+              <DailySessionView
+                entries={journalEntries}
+                onUpdateEntry={updateJournalEntry}
+                onDeleteEntry={deleteJournalEntry}
+              />
             )}
 
             {filters.exerciseType === "all" && (
-              <>
-                {strengthEntries.length > 0 && (
-                  <div className={styles.tableSection}>
-                    <h3 className={styles.sectionTitle}>Strength Training</h3>
-                    <StrengthTable
-                      entries={strengthEntries}
-                      onNavigateToLog={navigateToWorkoutLog}
-                      onUpdateEntry={updateJournalEntry}
-                      onDeleteEntry={deleteJournalEntry}
-                    />
-                  </div>
-                )}
+              <DailySessionView
+                entries={journalEntries}
+                onUpdateEntry={updateJournalEntry}
+                onDeleteEntry={deleteJournalEntry}
+              />
+            )}
 
-                {cardioEntries.length > 0 && (
-                  <div className={styles.tableSection}>
-                    <h3 className={styles.sectionTitle}>Cardio Workouts</h3>
-                    <CardioTable
-                      entries={cardioEntries}
-                      onNavigateToLog={navigateToWorkoutLog}
-                      onUpdateEntry={updateJournalEntry}
-                      onDeleteEntry={deleteJournalEntry}
-                    />
-                  </div>
-                )}
-              </>
+            {filters.exerciseType === "strength" && (
+              <DailySessionView
+                entries={strengthEntries}
+                onUpdateEntry={updateJournalEntry}
+                onDeleteEntry={deleteJournalEntry}
+              />
+            )}
+
+            {filters.exerciseType === "cardio" && (
+              <DailySessionView
+                entries={cardioEntries}
+                onUpdateEntry={updateJournalEntry}
+                onDeleteEntry={deleteJournalEntry}
+              />
             )}
           </div>
         </div>

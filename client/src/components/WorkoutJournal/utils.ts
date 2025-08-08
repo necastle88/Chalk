@@ -91,3 +91,64 @@ export const calculateDateRange = (dateFilter: string): Date | undefined => {
   }
   return undefined;
 };
+
+export const formatDateForGrouping = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+};
+
+export const formatDateHeader = (dateString: string): string => {
+  const date = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const dateKey = formatDateForGrouping(dateString);
+  const todayKey = formatDateForGrouping(today.toISOString());
+  const yesterdayKey = formatDateForGrouping(yesterday.toISOString());
+  
+  if (dateKey === todayKey) {
+    return "Today";
+  } else if (dateKey === yesterdayKey) {
+    return "Yesterday";
+  } else {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+};
+
+export const groupEntriesByDate = (entries: (StrengthEntry | CardioEntry)[]): Record<string, (StrengthEntry | CardioEntry)[]> => {
+  return entries.reduce((groups, entry) => {
+    const dateKey = formatDateForGrouping(entry.date);
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(entry);
+    return groups;
+  }, {} as Record<string, (StrengthEntry | CardioEntry)[]>);
+};
+
+export const calculateDailySessionStats = (entries: (StrengthEntry | CardioEntry)[]) => {
+  const totalExercises = entries.length;
+  const totalDuration = entries.reduce((sum, entry) => {
+    return sum + (entry.duration || 0);
+  }, 0);
+  
+  const strengthCount = entries.filter(entry => !isCardioExercise(entry.category)).length;
+  const cardioCount = entries.filter(entry => isCardioExercise(entry.category)).length;
+  
+  return {
+    totalExercises,
+    totalDuration,
+    strengthCount,
+    cardioCount,
+  };
+};

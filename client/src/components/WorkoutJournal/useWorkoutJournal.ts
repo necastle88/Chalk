@@ -26,7 +26,7 @@ export const useWorkoutJournal = (limit: number, refreshTrigger: number) => {
     categoryFilter: "",
     dateFilter: DEFAULT_JOURNAL_DATE_FILTER,
     searchTerm: "",
-    exerciseType: "all",
+    exerciseType: "daily",
   });
 
   // Fetch workout logs and convert to journal entries

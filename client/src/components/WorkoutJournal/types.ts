@@ -9,7 +9,7 @@ export interface JournalFilterState {
   categoryFilter: string;
   dateFilter: string;
   searchTerm: string;
-  exerciseType: 'all' | 'strength' | 'cardio';
+  exerciseType: 'all' | 'strength' | 'cardio' | 'daily';
 }
 
 export interface CardioEntry {

@@ -2,6 +2,8 @@ export { default } from "./WorkoutJournal";
 export { default as JournalFilters } from "./JournalFilters";
 export { default as StrengthTable } from "./StrengthTable";
 export { default as CardioTable } from "./CardioTable";
+export { default as DailySessionView } from "./DailySessionView";
+export { default as WorkoutDetailModal } from "./WorkoutDetailModal";
 export { default as JournalPaginationComponent } from "./JournalPagination";
 export { default as WorkoutLogModal } from "./WorkoutLogModal";
 export { useWorkoutJournal } from "./useWorkoutJournal";
