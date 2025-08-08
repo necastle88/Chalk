@@ -6,7 +6,7 @@ import DailySessionView from "./DailySessionView";
 import JournalPaginationComponent from "./JournalPagination";
 import WorkoutLogModal from "./WorkoutLogModal";
 import { DEFAULT_JOURNAL_LIMIT } from "./constants";
-import { isCardioExercise } from "./utils";
+import { isCardioExercise, groupEntriesByDate } from "./utils";
 import styles from "./workout-journal.module.css";
 
 const WorkoutJournal: React.FC<WorkoutJournalProps> = ({
@@ -57,6 +57,33 @@ const WorkoutJournal: React.FC<WorkoutJournalProps> = ({
     isCardioExercise(entry.category)
   ) as CardioEntry[];
 
+  // Calculate session counts for each tab (number of unique dates)
+  const getSessionCount = (entries: (StrengthEntry | CardioEntry)[]) => {
+    const groupedByDate = groupEntriesByDate(entries);
+    return Object.keys(groupedByDate).length;
+  };
+
+  const allSessionsCount = getSessionCount(journalEntries);
+  const strengthSessionsCount = getSessionCount(strengthEntries);
+  const cardioSessionsCount = getSessionCount(cardioEntries);
+
+  // Determine current session count based on active tab
+  const getCurrentSessionCount = () => {
+    switch (filters.exerciseType) {
+      case "daily":
+      case "all":
+        return allSessionsCount;
+      case "strength":
+        return strengthSessionsCount;
+      case "cardio":
+        return cardioSessionsCount;
+      default:
+        return allSessionsCount;
+    }
+  };
+
+  const currentSessionCount = getCurrentSessionCount();
+
   return (
     <div className={styles.container}>
       {showTitle && <h2 className={styles.title}>Workout Journal</h2>}
@@ -81,25 +108,25 @@ const WorkoutJournal: React.FC<WorkoutJournalProps> = ({
               onClick={() => updateFilters({ exerciseType: "daily" })}
               className={`${styles.tabButton} ${filters.exerciseType === "daily" ? styles.active : ""}`}
             >
-              Daily Sessions ({journalEntries.length})
+              Daily Sessions ({allSessionsCount})
             </button>
             <button
               onClick={() => updateFilters({ exerciseType: "all" })}
               className={`${styles.tabButton} ${filters.exerciseType === "all" ? styles.active : ""}`}
             >
-              All Exercises ({journalEntries.length})
+              All Exercises ({allSessionsCount})
             </button>
             <button
               onClick={() => updateFilters({ exerciseType: "strength" })}
               className={`${styles.tabButton} ${filters.exerciseType === "strength" ? styles.active : ""}`}
             >
-              Strength Training ({strengthEntries.length})
+              Strength Training ({strengthSessionsCount})
             </button>
             <button
               onClick={() => updateFilters({ exerciseType: "cardio" })}
               className={`${styles.tabButton} ${filters.exerciseType === "cardio" ? styles.active : ""}`}
             >
-              Cardio ({cardioEntries.length})
+              Cardio ({cardioSessionsCount})
             </button>
           </div>
 
@@ -140,12 +167,14 @@ const WorkoutJournal: React.FC<WorkoutJournalProps> = ({
         </div>
       )}
 
-      <JournalPaginationComponent
-        pagination={pagination}
-        currentPage={currentPage}
-        loading={loading}
-        onPageChange={handlePageChange}
-      />
+      {currentSessionCount > 7 && (
+        <JournalPaginationComponent
+          pagination={pagination}
+          currentPage={currentPage}
+          loading={loading}
+          onPageChange={handlePageChange}
+        />
+      )}
 
       {loading && journalEntries.length > 0 && (
         <div className={styles.loadingMore}>Loading more entries...</div>

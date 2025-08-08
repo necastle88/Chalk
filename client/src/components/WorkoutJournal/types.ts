@@ -48,3 +48,35 @@ export interface JournalPagination {
   totalPages: number;
   hasMore: boolean;
 }
+
+export interface StrengthPR {
+  category: string;
+  exerciseName: string;
+  weight: number;
+  unit: 'lbs' | 'kg';
+  reps: number;
+  sets: number;
+  date: string;
+  oneRepMax?: number;
+}
+
+export interface CardioPR {
+  exerciseName: string;
+  fastestTime?: number; // in minutes for time-based activities
+  longestDistance?: number; // in miles/km
+  longestDuration?: number; // in minutes
+  bestPace?: number; // pace in min/mile or min/km
+  date: string;
+  category: string;
+}
+
+export interface PersonalRecords {
+  strengthPRs: Record<string, StrengthPR[]>; // grouped by muscle group
+  cardioPRs: CardioPR[];
+  totalWorkouts: number;
+  totalWorkoutTime: number; // in minutes
+  strengthWorkouts: number;
+  cardioWorkouts: number;
+  currentStreak: number;
+  longestStreak: number;
+}
