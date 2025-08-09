@@ -2,6 +2,7 @@ import { useState } from "react";
 import Timer from "../../components/Timer/Timer";
 import WorkoutHistory from "../../components/WorkoutHistory/WorkoutHistory";
 import WorkoutJournal from "../../components/WorkoutJournal/WorkoutJournal";
+import { NotificationDemo } from "../../components/NotificationSystem";
 import styles from "./dashboard.module.css";
 
 const Dashboard = () => {
@@ -51,6 +52,10 @@ const Dashboard = () => {
             showTitle={true}
             refreshTrigger={refreshTrigger}
           />
+        </div>
+
+        <div className={styles.demoSection}>
+          <NotificationDemo />
         </div>
       </div>
 

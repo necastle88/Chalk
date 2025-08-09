@@ -1,0 +1,117 @@
+/* Notification Demo Styles */
+.notificationDemo {
+  background: var(--darkmode-surface-color);
+  border: 1px solid var(--darkmode-border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-md) 0;
+  max-width: 800px;
+}
+
+.notificationDemo h3 {
+  color: var(--darkmode-text-color);
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.description {
+  color: var(--darkmode-text-color);
+  opacity: 0.8;
+  margin: 0 0 var(--spacing-lg) 0;
+  line-height: 1.5;
+}
+
+.buttonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.demoButton {
+  background: var(--darkmode-bg-color);
+  border: 1px solid var(--darkmode-border-color);
+  color: var(--darkmode-text-color);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  text-align: left;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.demoButton:hover {
+  background: var(--darkmode-surface-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.demoButton:active {
+  transform: translateY(0);
+}
+
+.features {
+  background: var(--darkmode-bg-color);
+  border: 1px solid var(--darkmode-border-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+}
+
+.features h4 {
+  color: var(--darkmode-text-color);
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 1.1rem;
+}
+
+.features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.features li {
+  color: var(--darkmode-text-color);
+  padding: var(--spacing-xs) 0;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.features li strong {
+  color: var(--primary-color);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .buttonGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .demoButton {
+    min-height: 50px;
+    padding: var(--spacing-sm);
+  }
+  
+  .notificationDemo {
+    padding: var(--spacing-md);
+    margin: var(--spacing-sm) 0;
+  }
+  
+  .features {
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .notificationDemo h3 {
+    font-size: 1.1rem;
+  }
+  
+  .features li {
+    font-size: 0.9rem;
+  }
+}

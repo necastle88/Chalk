@@ -3,6 +3,8 @@ import { useUser, useAuth } from "@clerk/clerk-react";
 import Timer from "../Timer/Timer";
 import type { TimerRef } from "../Timer/Timer";
 import Toast from "../Toast/Toast";
+import { useNotifications } from "../../contexts/NotificationContext";
+import { useWorkoutNotifications } from "../../hooks/useWorkoutNotifications";
 import { workoutApi } from "../../services/workoutApi";
 import type {
   ExerciseCategory,
@@ -17,6 +19,9 @@ interface WorkoutLoggerProps {
 const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({ onWorkoutLogged }) => {
   const { user } = useUser();
   const { getToken } = useAuth();
+  const { showInfo } = useNotifications();
+  const { celebrateWorkoutCompletion, workoutReminder, safetyAlert } =
+    useWorkoutNotifications();
   const [exerciseInput, setExerciseInput] = useState("");
   const [sets, setSets] = useState<number>(1);
   const [reps, setReps] = useState<number>(1);
@@ -149,6 +154,46 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({ onWorkoutLogged }) => {
         // Auto-select category if confidence is high and no manual selection
         if (detection.confidence > 0.7 && !hasManualCategory) {
           setSelectedCategory(detection.category);
+
+          // Show high-confidence AI suggestion notification
+          showInfo(
+            "AI Exercise Detection",
+            `I detected "${detection.exerciseName}" with ${Math.round(detection.confidence * 100)}% confidence.`,
+            {
+              duration: 4000,
+              actions: [
+                {
+                  label: "Looks Good",
+                  action: () => console.log("AI suggestion accepted"),
+                  style: "primary",
+                },
+              ],
+            }
+          );
+        } else if (detection.confidence > 0.4) {
+          // Show suggestion for medium confidence
+          showInfo(
+            "Exercise Suggestion",
+            `Did you mean "${detection.exerciseName}"? (${Math.round(detection.confidence * 100)}% confidence)`,
+            {
+              duration: 6000,
+              actions: [
+                {
+                  label: "Accept",
+                  action: () => {
+                    setSelectedCategory(detection.category);
+                    setShowSuggestions(false);
+                  },
+                  style: "primary",
+                },
+                {
+                  label: "Ignore",
+                  action: () => setShowSuggestions(false),
+                  style: "secondary",
+                },
+              ],
+            }
+          );
         }
 
         // Auto-populate sets, reps, weight, and duration if detected
@@ -361,8 +406,25 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({ onWorkoutLogged }) => {
       setPendingWorkout(null);
       setWorkoutReady(false);
 
-      // Show success toast
-      setShowSuccessToast(true);
+      // Use comprehensive workout celebration
+      celebrateWorkoutCompletion({
+        exerciseName: updatedWorkoutData.exerciseName || exerciseInput,
+        sets: updatedWorkoutData.sets,
+        reps: updatedWorkoutData.reps,
+        weight: updatedWorkoutData.weight,
+        duration: updatedWorkoutData.duration,
+        category: updatedWorkoutData.category || selectedCategory,
+      });
+
+      // Add safety reminder for high-intensity workouts
+      if (
+        updatedWorkoutData.weight > 200 ||
+        updatedWorkoutData.sets * updatedWorkoutData.reps > 50
+      ) {
+        setTimeout(() => {
+          safetyAlert("form_check");
+        }, 3000);
+      }
 
       // Reset timer to user's previous selection
       if (timerRef.current) {

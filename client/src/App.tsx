@@ -4,6 +4,10 @@ import { useState } from "react";
 import Header from "./components/Header/Header";
 import Sidebar from "./layouts/Sidebar/Sidebar";
 import AppRouter from "./router/AppRouter";
+import {
+  NotificationProvider,
+  NotificationManager,
+} from "./components/NotificationSystem";
 
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -15,8 +19,9 @@ function App() {
   const handleMobileMenuClose = () => {
     setIsMobileMenuOpen(false);
   };
+
   return (
-    <>
+    <NotificationProvider>
       <SignedOut>
         <div
           style={{
@@ -74,8 +79,11 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Global notification manager for toast notifications */}
+        <NotificationManager />
       </SignedIn>
-    </>
+    </NotificationProvider>
   );
 }
 

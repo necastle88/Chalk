@@ -1,0 +1,226 @@
+.demo {
+  padding: var(--spacing-xl);
+  max-width: 800px;
+  margin: 0 auto;
+  color: var(--darkmode-text-color);
+}
+
+.demo h2 {
+  color: var(--darkmode-text-color);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.5rem;
+}
+
+.demo p {
+  color: var(--darkmode-text-color);
+  opacity: 0.8;
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.6;
+}
+
+.buttonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.buttonGrid button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.buttonGrid button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.successBtn {
+  background: linear-gradient(135deg, var(--secondary-color), #48bb78);
+}
+
+.successBtn:hover {
+  background: linear-gradient(135deg, #48bb78, var(--secondary-color));
+}
+
+.errorBtn {
+  background: linear-gradient(135deg, var(--danger-color), #e53e3e);
+}
+
+.errorBtn:hover {
+  background: linear-gradient(135deg, #e53e3e, var(--danger-color));
+}
+
+.warningBtn {
+  background: linear-gradient(135deg, var(--warning-color), #dd6b20);
+}
+
+.warningBtn:hover {
+  background: linear-gradient(135deg, #dd6b20, var(--warning-color));
+}
+
+.infoBtn {
+  background: linear-gradient(135deg, var(--primary-color), #5a67d8);
+}
+
+.infoBtn:hover {
+  background: linear-gradient(135deg, #5a67d8, var(--primary-color));
+}
+
+.achievementBtn {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #2d3748;
+}
+
+.achievementBtn:hover {
+  background: linear-gradient(135deg, #ffed4e, #ffd700);
+}
+
+.reminderBtn {
+  background: linear-gradient(135deg, #ff6b6b, #e53e3e);
+}
+
+.reminderBtn:hover {
+  background: linear-gradient(135deg, #e53e3e, #ff6b6b);
+}
+
+.progressBtn {
+  background: linear-gradient(135deg, #4ecdc4, #38b2ac);
+}
+
+.progressBtn:hover {
+  background: linear-gradient(135deg, #38b2ac, #4ecdc4);
+}
+
+.urgentBtn {
+  background: linear-gradient(135deg, #ff0040, #cc0033);
+  animation: urgentPulse 2s infinite;
+  position: relative;
+}
+
+.urgentBtn:hover {
+  background: linear-gradient(135deg, #cc0033, #ff0040);
+}
+
+.urgentBtn::before {
+  content: '🚨';
+  margin-right: var(--spacing-xs);
+}
+
+.info {
+  background: var(--darkmode-surface-color);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--darkmode-border-color);
+}
+
+.info h3 {
+  color: var(--darkmode-text-color);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.info h3::before {
+  content: '✨';
+}
+
+.info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info li {
+  color: var(--darkmode-text-color);
+  opacity: 0.9;
+  padding: var(--spacing-xs) 0;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.info li::first-letter {
+  font-size: 1.1em;
+}
+
+@keyframes urgentPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 64, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 64, 0);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .demo {
+    padding: var(--spacing-lg);
+  }
+  
+  .buttonGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .buttonGrid button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.85rem;
+  }
+  
+  .info {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .demo {
+    padding: var(--spacing-md);
+  }
+  
+  .demo h2 {
+    font-size: 1.3rem;
+  }
+  
+  .info h3 {
+    font-size: 1rem;
+  }
+  
+  .info li {
+    font-size: 0.9rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .buttonGrid button:hover {
+    transform: none;
+  }
+  
+  .urgentBtn {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .buttonGrid button {
+    border: 2px solid white;
+  }
+  
+  .info {
+    border: 2px solid var(--darkmode-text-color);
+  }
+}
