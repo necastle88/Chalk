@@ -1,0 +1,13 @@
+[build]
+builder = "nixpacks"
+
+[build.env]
+NODE_ENV = "production"
+
+[deploy]
+startCommand = "npm start"
+
+[env]
+DATABASE_URL = { $ref = "DATABASE_URL" }
+CLERK_SECRET_KEY = { $ref = "CLERK_SECRET_KEY" }
+NODE_ENV = "production"

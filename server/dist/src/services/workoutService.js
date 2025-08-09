@@ -50,19 +50,38 @@ function validateWorkoutLogInput(data) {
     if (!data.exerciseDescription || typeof data.exerciseDescription !== 'string') {
         throw new Error('Exercise description is required and must be a string');
     }
-    if (typeof data.sets !== 'number' || data.sets < 1 || data.sets > 50) {
-        throw new Error('Sets must be a number between 1 and 50');
+    // For cardio exercises, allow more flexible sets/reps/weight validation
+    if (data.category === client_1.ExerciseCategory.CARDIO) {
+        // Cardio typically uses sets=1, reps=1, weight=0
+        if (typeof data.sets !== 'number' || data.sets < 1 || data.sets > 10) {
+            throw new Error('Sets for cardio must be a number between 1 and 10');
+        }
+        if (typeof data.reps !== 'number' || data.reps < 1 || data.reps > 100) {
+            throw new Error('Reps for cardio must be a number between 1 and 100');
+        }
+        if (typeof data.weight !== 'number' || data.weight < 0 || data.weight > 100) {
+            throw new Error('Weight for cardio must be a number between 0 and 100 (for weighted cardio)');
+        }
     }
-    if (typeof data.reps !== 'number' || data.reps < 1 || data.reps > 1000) {
-        throw new Error('Reps must be a number between 1 and 1000');
-    }
-    if (typeof data.weight !== 'number' || data.weight < 0 || data.weight > 2000) {
-        throw new Error('Weight must be a number between 0 and 2000');
+    else {
+        // Standard strength training validation
+        if (typeof data.sets !== 'number' || data.sets < 1 || data.sets > 50) {
+            throw new Error('Sets must be a number between 1 and 50');
+        }
+        if (typeof data.reps !== 'number' || data.reps < 1 || data.reps > 1000) {
+            throw new Error('Reps must be a number between 1 and 1000');
+        }
+        if (typeof data.weight !== 'number' || data.weight < 0 || data.weight > 2000) {
+            throw new Error('Weight must be a number between 0 and 2000');
+        }
     }
     // Optional field validations
     if (data.duration !== undefined) {
-        if (typeof data.duration !== 'number' || data.duration < 0 || data.duration > 3600) {
-            throw new Error('Duration must be a number between 0 and 3600 seconds');
+        // Allow longer durations for cardio (up to 8 hours for marathons/long rides)
+        const maxDuration = data.category === client_1.ExerciseCategory.CARDIO ? 28800 : 3600; // 8 hours vs 1 hour
+        if (typeof data.duration !== 'number' || data.duration < 0 || data.duration > maxDuration) {
+            const maxHours = maxDuration / 3600;
+            throw new Error(`Duration must be a number between 0 and ${maxHours} hours (${maxDuration} seconds)`);
         }
     }
     if (data.restDuration !== undefined) {
@@ -82,8 +101,8 @@ function validateWorkoutLogInput(data) {
     }
     // Validate cardio-specific fields
     if (data.distance !== undefined) {
-        if (typeof data.distance !== 'number' || data.distance < 0 || data.distance > 100) {
-            throw new Error('Distance must be a number between 0 and 100 miles');
+        if (typeof data.distance !== 'number' || data.distance < 0 || data.distance > 500) {
+            throw new Error('Distance must be a number between 0 and 500 miles (for ultra-marathons)');
         }
     }
     if (data.laps !== undefined) {
@@ -92,23 +111,23 @@ function validateWorkoutLogInput(data) {
         }
     }
     if (data.heartRate !== undefined) {
-        if (typeof data.heartRate !== 'number' || data.heartRate < 60 || data.heartRate > 220) {
-            throw new Error('Heart rate must be a number between 60 and 220 bpm');
+        if (typeof data.heartRate !== 'number' || data.heartRate < 40 || data.heartRate > 250) {
+            throw new Error('Heart rate must be a number between 40 and 250 bpm (resting to max exercise)');
         }
     }
     if (data.heartRateMax !== undefined) {
-        if (typeof data.heartRateMax !== 'number' || data.heartRateMax < 60 || data.heartRateMax > 220) {
-            throw new Error('Maximum heart rate must be a number between 60 and 220 bpm');
+        if (typeof data.heartRateMax !== 'number' || data.heartRateMax < 40 || data.heartRateMax > 250) {
+            throw new Error('Maximum heart rate must be a number between 40 and 250 bpm');
         }
     }
     if (data.lapTime !== undefined) {
-        if (typeof data.lapTime !== 'number' || data.lapTime < 30 || data.lapTime > 3600) {
-            throw new Error('Lap time must be a number between 30 and 3600 seconds');
+        if (typeof data.lapTime !== 'number' || data.lapTime < 60 || data.lapTime > 7200) {
+            throw new Error('Lap time must be a number between 1 minute and 2 hours (60-7200 seconds)');
         }
     }
     if (data.estimatedCalories !== undefined) {
-        if (typeof data.estimatedCalories !== 'number' || data.estimatedCalories < 1 || data.estimatedCalories > 2000) {
-            throw new Error('Estimated calories must be a number between 1 and 2000');
+        if (typeof data.estimatedCalories !== 'number' || data.estimatedCalories < 1 || data.estimatedCalories > 10000) {
+            throw new Error('Estimated calories must be a number between 1 and 10,000 (for long endurance events)');
         }
     }
     if (data.perceivedEffort !== undefined) {
@@ -411,8 +430,11 @@ function updateWorkoutLog(userId, logId, data) {
                 updateData.weight = Math.abs(data.weight);
             }
             if (data.duration !== undefined) {
-                if (typeof data.duration !== 'number' || data.duration < 0 || data.duration > 3600) {
-                    throw new Error('Duration must be a number between 0 and 3600 seconds');
+                // Allow longer durations for cardio updates too
+                const maxDuration = (existingLog.category === client_1.ExerciseCategory.CARDIO || data.category === client_1.ExerciseCategory.CARDIO) ? 28800 : 3600;
+                if (typeof data.duration !== 'number' || data.duration < 0 || data.duration > maxDuration) {
+                    const maxHours = maxDuration / 3600;
+                    throw new Error(`Duration must be a number between 0 and ${maxHours} hours (${maxDuration} seconds)`);
                 }
                 updateData.duration = Math.floor(Math.abs(data.duration));
             }
@@ -437,23 +459,78 @@ function updateWorkoutLog(userId, logId, data) {
                 }
                 updateData.category = data.category;
             }
+            // Handle cardio metrics update for existing cardio workouts
+            if (existingLog.category === client_1.ExerciseCategory.CARDIO || data.category === client_1.ExerciseCategory.CARDIO) {
+                // Extract existing cardio metrics
+                const existingCardioMetrics = extractCardioMetrics(existingLog.notes, existingLog.category);
+                const cleanedExistingNotes = cleanNotes(existingLog.notes);
+                // Merge with new cardio data
+                const updatedCardioMetrics = Object.assign({}, existingCardioMetrics);
+                if (data.distance !== undefined) {
+                    if (typeof data.distance !== 'number' || data.distance < 0 || data.distance > 500) {
+                        throw new Error('Distance must be a number between 0 and 500 miles');
+                    }
+                    updatedCardioMetrics.distance = Math.round(Math.abs(data.distance) * 100) / 100;
+                }
+                if (data.laps !== undefined) {
+                    if (typeof data.laps !== 'number' || data.laps < 1 || data.laps > 1000) {
+                        throw new Error('Laps must be a number between 1 and 1000');
+                    }
+                    updatedCardioMetrics.laps = Math.floor(Math.abs(data.laps));
+                }
+                if (data.heartRate !== undefined) {
+                    if (typeof data.heartRate !== 'number' || data.heartRate < 40 || data.heartRate > 250) {
+                        throw new Error('Heart rate must be a number between 40 and 250 bpm');
+                    }
+                    updatedCardioMetrics.heartRate = Math.floor(Math.abs(data.heartRate));
+                }
+                if (data.heartRateMax !== undefined) {
+                    if (typeof data.heartRateMax !== 'number' || data.heartRateMax < 40 || data.heartRateMax > 250) {
+                        throw new Error('Maximum heart rate must be a number between 40 and 250 bpm');
+                    }
+                    updatedCardioMetrics.heartRateMax = Math.floor(Math.abs(data.heartRateMax));
+                }
+                if (data.perceivedEffort !== undefined) {
+                    if (typeof data.perceivedEffort !== 'string' || data.perceivedEffort.trim().length === 0) {
+                        throw new Error('Perceived effort must be a non-empty string');
+                    }
+                    updatedCardioMetrics.perceivedEffort = data.perceivedEffort.trim();
+                }
+                if (data.lapTime !== undefined) {
+                    if (typeof data.lapTime !== 'number' || data.lapTime < 60 || data.lapTime > 7200) {
+                        throw new Error('Lap time must be a number between 1 minute and 2 hours');
+                    }
+                    updatedCardioMetrics.lapTime = Math.floor(Math.abs(data.lapTime));
+                }
+                if (data.estimatedCalories !== undefined) {
+                    if (typeof data.estimatedCalories !== 'number' || data.estimatedCalories < 1 || data.estimatedCalories > 10000) {
+                        throw new Error('Estimated calories must be a number between 1 and 10,000');
+                    }
+                    updatedCardioMetrics.estimatedCalories = Math.floor(Math.abs(data.estimatedCalories));
+                }
+                if (data.pace !== undefined) {
+                    if (typeof data.pace !== 'string' || data.pace.trim().length === 0) {
+                        throw new Error('Pace must be a non-empty string');
+                    }
+                    updatedCardioMetrics.pace = data.pace.trim();
+                }
+                // Rebuild notes with cardio metrics
+                let finalNotes = data.notes !== undefined ? (data.notes.trim() || '') : (cleanedExistingNotes || '');
+                if (Object.keys(updatedCardioMetrics).length > 0) {
+                    const cardioData = JSON.stringify(updatedCardioMetrics);
+                    finalNotes = finalNotes ? `${finalNotes}\n[CARDIO_METRICS]${cardioData}` : `[CARDIO_METRICS]${cardioData}`;
+                }
+                updateData.notes = finalNotes || null;
+            }
             // Update the workout log
             const updatedLog = yield prisma.workoutLog.update({
                 where: { id: logId },
                 data: updateData
             });
-            return {
-                id: updatedLog.id,
-                exerciseName: updatedLog.exerciseName,
-                category: updatedLog.category,
-                sets: updatedLog.sets,
-                reps: updatedLog.reps,
-                weight: updatedLog.weight,
-                duration: updatedLog.duration || undefined,
-                restDuration: updatedLog.restDuration || undefined,
-                notes: updatedLog.notes || undefined,
-                date: updatedLog.date
-            };
+            // Extract cardio metrics for response
+            const cardioMetrics = extractCardioMetrics(updatedLog.notes, updatedLog.category);
+            const cleanedNotes = cleanNotes(updatedLog.notes);
+            return Object.assign({ id: updatedLog.id, exerciseName: updatedLog.exerciseName, category: updatedLog.category, sets: updatedLog.sets, reps: updatedLog.reps, weight: updatedLog.weight, duration: updatedLog.duration || undefined, restDuration: updatedLog.restDuration || undefined, notes: cleanedNotes, date: updatedLog.date }, cardioMetrics);
         }
         catch (error) {
             console.error('Error updating workout log:', error);
