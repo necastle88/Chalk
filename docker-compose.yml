@@ -1,9 +1,9 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # Frontend (React + Vite)
   frontend:
-    build: 
+    build:
       context: ./client
       dockerfile: Dockerfile
     ports:
